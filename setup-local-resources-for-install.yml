@@ -39,7 +39,7 @@
       validate_certs: no    
 
   - name: Unarchive govc
-    shell: gzip -dkc "~/downloads/govc.gz" > "/usr/local/bin/govc"
+    shell: gzip -dc "~/downloads/govc.gz" > "/usr/local/bin/govc"
 
   - name: Make govc executable
     file:
