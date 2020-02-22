@@ -1,15 +1,15 @@
 # OCP4 on VMware vSphere UPI Automation
 
-The goal of this repo is to make deploying and redeploying a new Openshift v4 cluster a snap. The document looks long but after you have used it till the end once, you will appreciate how quickly VMs come up in vCenter for you to start working with. 
+The goal of this repo is to make deploying and redeploying a new Openshift v4 cluster a snap. The document looks long but after you have used it till the end once, you will appreciate how quickly VMs come up in vCenter for you to start working with.
 
 Using the same repo and with minor tweaks, it can be applied to any version of Openshift higher than the current version of 4.2.
 
 ## Prerequisites
 
-1. vSphere ESXi and vCenter 6.7 installed 
-2. A datacenter created with a vSphere host added to it 
-3. **VM and Template folder** created with the same name as the **Openshift cluster name** you would like to use, as described in the [documentation](https://docs.openshift.com/container-platform/4.2/installing/installing_vsphere/installing-vsphere.html#installation-vsphere-machines_installing-vsphere)
-4. The OVF template deployed in the ***same folder*** from the OVA file [located here](https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.2/latest/rhcos-4.2.0-x86_64-vmware.ova) using instructions from **#6** step of the same documentation as in the previous step. Once deployed, on the template name, right-click and select **Edit Settings** and do the following:
+1. vSphere ESXi and vCenter 6.7 installed
+2. A datacenter created with a vSphere host added to it
+3. **VM and Template folder** created with the same name as the **Openshift cluster name** you would like to use, as described in the [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_vsphere/installing-vsphere.html#installation-vsphere-machines_installing-vsphere)
+4. The OVF template deployed in the ***same folder*** from the OVA file [located here](https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.3/latest/rhcos-4.3.0-x86_64-vmware.ova) using instructions from **#6** step of the same documentation as in the previous step. Once deployed, on the template name, right-click and select **Edit Settings** and do the following:
    * Under `Virtual Hardware` 🠮  `Network adapter 1` 🠮  Highlight and delete it by clicking on the `x` symbol on the right. ***This is an important step if you would like to use the mac addresses as defined in the file***
    * Under the `VM Options` 🠮  `Advanced` 🠮  `Latency Sensitivity`; set it to **High**
    * Under the `VM Options` 🠮  `Advanced` 🠮  `Configuration Parameters` 🠮  `Edit Configuration`; add the following param (name, value) respectively:
@@ -18,7 +18,7 @@ Using the same repo and with minor tweaks, it can be applied to any version of O
      3. `guestinfo.ignition.config.data`,  blah
    * Save the template
 5. Ideally have [helper node](https://github.com/christianh814/ocp4-upi-helpernode) running in the same network to provide all the necessary services such as [DHCP/DNS/HAProxy as LB/FTP Server]
-6. Ansible 2.8.5 installed on the machine where this repo is cloned 
+6. Ansible 2.8.5 installed on the machine where this repo is cloned
    * For this specific version of Ansible you can run the command `sudo dnf -y install ansible-2.8.5`
 
 ## Automatic generation of ignition and other supporting files
@@ -26,30 +26,30 @@ Using the same repo and with minor tweaks, it can be applied to any version of O
 ### Prerequisites
 
 1. Get the ***pull secret*** from [here](https://cloud.redhat.com/openshift/install/vsphere/user-provisioned)
-2. Generate a SSH key pair as per [instructions](https://docs.openshift.com/container-platform/4.2/installing/installing_vsphere/installing-vsphere.html#ssh-agent-using_installing-vsphere). The private key will then be used to log into bootstrap/master and worker nodes 
+2. Generate a SSH key pair as per [instructions](https://docs.openshift.com/container-platform/4.2/installing/installing_vsphere/installing-vsphere.html#ssh-agent-using_installing-vsphere). The private key will then be used to log into bootstrap/master and worker nodes
 3. Get the vCenter details:
    1. IP Address
    2. Username
    3. Password
    4. Datacenter name *(created in the earlier prerequisites)*
 4. Actual links to the Openshift Client and Install binaries *(prepopulated for 4.2.x)*
-5. Openshift cluster 
+5. Openshift cluster
    1. base domain *(prepopulated with **example.com**)*
    2. cluster name *(prepopulated with **ocp4**)*
 6. HTTP URL of the ***bootstrap.ign*** file *(prepopulated with a example config pointing to helper node)*
 
-The step **#6** needn't exist at the time of running the setup/installation step, so provide an accurate guess of where and at what context path **bootstrap.ign** will eventually be served 
-   
+The step **#6** needn't exist at the time of running the setup/installation step, so provide an accurate guess of where and at what context path **bootstrap.ign** will eventually be served
+
 ### Setup and Installation
 
-With all the details in hand from the prerequisites, populate the **vars.yml** in the root folder of this repo and trigger the installation with the following command 
+With all the details in hand from the prerequisites, populate the **vars.yml** in the root folder of this repo and trigger the installation with the following command
 
-```sh 
+```sh
 # Make sure to run this command in the root folder of the repo
 ansible-playbook -e @vars.yml setup-ocp-vsphere.yml
 ```
 
-### Artifacts Generated 
+### Artifacts Generated
 
 1. Folders [bin, downloads, install-dir] created
 2. Openshift client and install binaries downloaded to the **downloads** folder
@@ -63,13 +63,13 @@ ansible-playbook -e @vars.yml setup-ocp-vsphere.yml
       * master-vm-param.txt
       * worker-vm-param.txt
 
-## Copy the bootstrap.ign file to the webserver 
+## Copy the bootstrap.ign file to the webserver
 
 > This is an important step before you deploy/power-on the VMs
 
 If using the helper node, the following command might help!
 
-```sh 
+```sh
 # Running from the root folder of this repo; below is just an example
 scp install-dir/bootstrap.ign root@192.168.86.180:/var/www/html/ignition
 ```
@@ -86,14 +86,14 @@ scp install-dir/bootstrap.ign root@192.168.86.180:/var/www/html/ignition
 
 ### Setup and Installation
 
-With all the details in hand from the prerequisites, populate the **setup-vcenter-vms.yml** in the root folder of this repo and trigger the installation with the following command 
+With all the details in hand from the prerequisites, populate the **setup-vcenter-vms.yml** in the root folder of this repo and trigger the installation with the following command
 
-```sh 
+```sh
 # Make sure to run this command in the root folder of the repo
 ansible-playbook -e @vars.yml setup-vcenter-vms.yml
 ```
 
-### Artifacts Generated 
+### Artifacts Generated
 
 In vCenter all VMs (bootstrap, master0-2, worker0-2) generated in the designated folder but in **powered-off** state
 

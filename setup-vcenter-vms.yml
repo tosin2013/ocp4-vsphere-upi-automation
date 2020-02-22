@@ -1,22 +1,22 @@
 ---
 - hosts: localhost
-  vars: 
+  vars:
     bootstrapContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/append-bootstrap.64') }}"
     masterContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/master.64') }}"
     workerContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/worker.64') }}"
-    templateName : rhcos-4.2.0-x86_64-vmware
+    templateName : rhcos-4.3.0-x86_64-vmware
     folder : "/{{ vcenter.datacenter }}/vm/{{ config.clusterName }}"
     datastore: "{{ vcenter.datastore }}"
   tasks:
     - name: "Bootstrap base64"
       debug:
-        msg: "{{ bootstrapContent }}" 
+        msg: "{{ bootstrapContent }}"
     - name: "Master base64"
       debug:
-        msg: "{{ masterContent }}" 
+        msg: "{{ masterContent }}"
     - name: "Worker base64 "
       debug:
-        msg: "{{ workerContent }}" 
+        msg: "{{ workerContent }}"
     - name: Create bootstrap VM from the template
       vmware_guest:
         hostname: "{{ vcenter.ip }}"
@@ -25,21 +25,21 @@
         datacenter: dc
         validate_certs: no
         folder: "{{ folder }}"
-        name: bootstrap 
+        name: bootstrap
         state: poweredoff
         template: "{{ templateName }}"
         disk:
-        - size_gb: 120 
+        - size_gb: 120
           type: thin
           datastore: "{{ datastore }}"
         hardware:
-          memory_mb: 16384 
+          memory_mb: 16384
           num_cpus: 4
           memory_reservation_lock: True
         networks:
         - name: VM Network
-          mac: "00:50:56:a8:aa:a1" 
-        wait_for_ip_address: no 
+          mac: "00:50:56:a8:aa:a1"
+        wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
             value: "{{ bootstrapContent }}"
@@ -57,14 +57,14 @@
         disk:
         - size_gb: 120
           type: thin
-          datastore: "{{ datastore }}" 
+          datastore: "{{ datastore }}"
         hardware:
           memory_mb: 16384
           num_cpus: 4
           memory_reservation_lock: True
         networks:
         - name: VM Network
-          mac: "{{ item.mac }}" 
+          mac: "{{ item.mac }}"
         wait_for_ip_address: no
         customvalues:
          - key: guestinfo.ignition.config.data
@@ -103,5 +103,3 @@
         - { name : "worker0", mac: "00:50:56:a8:aa:a6"}
         - { name : "worker1", mac: "00:50:56:a8:aa:a7"}
         - { name : "worker2", mac: "00:50:56:a8:aa:a8"}
-
-
