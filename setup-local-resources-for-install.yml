@@ -102,3 +102,8 @@
 
   - name: Get base64 version of worker.ign
     shell: "base64 -w0 {{ user_home.stdout }}/install-dir/worker.ign > {{ user_home.stdout }}/install-dir/worker.64"
+
+  - name: Copy install-config.yaml file into install-dir
+    template:
+      src: "templates/data.yaml.j2"
+      dest: "{{ user_home.stdout }}/install-dir/data.yaml"
