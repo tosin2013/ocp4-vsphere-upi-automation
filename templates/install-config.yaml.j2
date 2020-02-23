@@ -12,10 +12,10 @@ metadata:
   name: {{ config.clusterName }}
 platform:
   vsphere:
-    vcenter: {{ vcenter.ip }}
-    username: {{ vcenter.username }}
-    password: {{ vcenter.password }}
-    datacenter: {{ vcenter.datacenter }}
-    defaultDatastore: {{ vcenter.datastore }}
+    vcenter: {{ vcenter_hostname }}
+    username: {{ vcenter_username }}
+    password: {{ vcenter_password }}
+    datacenter: {{ vmware_datacenter }}
+    defaultDatastore: {{ vmware_datastore }}
 pullSecret: '{{ config.pullSecret | to_json }}'
 sshKey: '{{ sshKey }}'
