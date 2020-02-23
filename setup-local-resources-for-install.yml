@@ -1,7 +1,7 @@
 - hosts: "{{ hostname }}"
 
   environment: 
-    PATH: "~/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home.stdout }}/bin:{{ ansible_env.PATH }}"
 
   vars:
     sshKey: "{{ lookup('file', '~/.ssh/ocp4.pub') }}"
@@ -25,9 +25,15 @@
       path: ~/.ssh/ocp4
       force: false
 
+  - name: get user home directory
+    shell: >
+            getent passwd {{ user }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
+
   - name: Create install-dir 
     file:
-      path: "~/{{ item }}"
+      path: "{{ user_home.stdout }}/{{ item }}"
       state: directory
       mode: '0755'
     with_items: ["downloads", "install-dir"]  
@@ -35,11 +41,11 @@
   - name: Download govc
     get_url:
       url: "{{ download.govc}}"
-      dest: "~/downloads/govc.gz"
+      dest: "{{ user_home.stdout }}/downloads/govc.gz"
       validate_certs: no    
 
   - name: Unarchive govc
-    shell: gzip -dc "~/downloads/govc.gz" > "/usr/local/bin/govc"
+    shell: gzip -dkc "{{ user_home.stdout }}/downloads/govc.gz" > "/usr/local/bin/govc"
 
   - name: Make govc executable
     file:
@@ -48,35 +54,35 @@
 
   - name: Copy install-config.yaml file into install-dir
     template:
-      src: "~/templates/install-config.yaml.j2"
-      dest: "~/install-dir/install-config.yaml"
+      src: "{{ user_home.stdout }}/templates/install-config.yaml.j2"
+      dest: "{{ user_home.stdout }}/install-dir/install-config.yaml"
 
   - name: Backup the install-config.yaml file 
     copy:
-      src: "~/install-dir/install-config.yaml"
-      dest: "~/install-dir/install-config.yaml.orig"
+      src: "{{ user_home.stdout }}/install-dir/install-config.yaml"
+      dest: "{{ user_home.stdout }}/install-dir/install-config.yaml.orig"
 
   - name: Generate the ignition manifests
-    command: "openshift-install create manifests --dir=~/install-dir"
+    command: "openshift-install create manifests --dir={{ user_home.stdout }}/install-dir"
 
   - name: Apply the patch to set mastersSchedulable to false
     patch:
-      src: "~/patches/cluster-scheduler-02-config.yml.patch"
-      dest: "~/install-dir/manifests/cluster-scheduler-02-config.yml"
+      src: "{{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch"
+      dest: "{{ user_home.stdout }}/install-dir/manifests/cluster-scheduler-02-config.yml"
 
   - name: Generate the ignition configs
-    command: "openshift-install create ignition-configs --dir=~/install-dir"
+    command: "openshift-install create ignition-configs --dir={{ user_home.stdout }}/install-dir"
 
   - name: Copy append-bootstrap.ign file into install-dir
     template: 
-      src: "~/templates/append-bootstrap.ign.j2"
-      dest: "~/install-dir/append-bootstrap.ign"
+      src: "{{ user_home.stdout }}/templates/append-bootstrap.ign.j2"
+      dest: "{{ user_home.stdout }}/install-dir/append-bootstrap.ign"
 
   - name: Get base64 version of append-bootstrap.ign
-    shell: "base64 -w0 ~/install-dir/append-bootstrap.ign > ~/install-dir/append-bootstrap.64"
+    shell: "base64 -w0 {{ user_home.stdout }}/install-dir/append-bootstrap.ign > {{ user_home.stdout }}/install-dir/append-bootstrap.64"
 
   - name: Get base64 version of master.ign
-    shell: "base64 -w0 ~/install-dir/master.ign > ~/install-dir/master.64"
+    shell: "base64 -w0 {{ user_home.stdout }}/install-dir/master.ign > {{ user_home.stdout }}/install-dir/master.64"
 
   - name: Get base64 version of worker.ign
-    shell: "base64 -w0 ~/install-dir/worker.ign > ~/install-dir/worker.64"
+    shell: "base64 -w0 {{ user_home.stdout }}/install-dir/worker.ign > {{ user_home.stdout }}/install-dir/worker.64"
