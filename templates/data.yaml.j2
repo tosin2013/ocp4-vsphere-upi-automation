@@ -11,7 +11,7 @@ paths:
   configs: "/configFiles"
   isos: "/isos"
 nodes:
-- hostname: "{{ bootstrap.name }}"."{{ clusterName }}"."{{ baseDomain }}"
+- hostname: "{{ bootstrap.name }}"."{{  config.clusterName }}"."{{  config.baseDomain }}"
   role: bootstrap
   install_device: "{{ install_device }}"
   create_iso: false
@@ -29,7 +29,7 @@ nodes:
   templateAppend: append-template.j2
   templateIsolinux: isolinux.cfg.j2
 {%  for master in masters %}
-- hostname: "{{ master.name }}"."{{ clusterName }}"."{{ baseDomain }}"
+- hostname: "{{ master.name }}"."{{ config.clusterName }}"."{{  config.baseDomain }}"
   role: master
   install_device: "{{ install_device }}"
   create_iso: false
@@ -48,7 +48,7 @@ nodes:
   templateIsolinux: isolinux.cfg.j2
 {% endfor %}
 
-- hostname: worker01."{{ clusterName }}"."{{ baseDomain }}"
+- hostname: worker01."{{ config.clusterName }}"."{{ config.baseDomain }}"
   role: worker
   install_device: "{{ install_device }}"
   create_iso: false
