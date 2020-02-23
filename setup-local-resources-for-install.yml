@@ -43,7 +43,7 @@
       path: "{{ user_home.stdout }}/{{ item }}"
       state: directory
       mode: '0755'
-    with_items: ["downloads", "install-dir"]  
+    with_items: ["downloads", "install-dir", "patches"]  
 
   - name: Download govc
     get_url:
@@ -69,6 +69,11 @@
 
   - name: Generate the ignition manifests
     command: "/usr/local/bin/openshift-install create manifests --dir={{ user_home.stdout }}/install-dir"
+
+  - name: Copy cluster scheduler path to machine 
+    copy:
+      src: patches/cluster-scheduler-02-config.yml.patch
+      dest: "{{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch"
 
   - name: Apply the patch to set mastersSchedulable to false
     patch:
