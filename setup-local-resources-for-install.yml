@@ -68,7 +68,7 @@
     command: cp {{ user_home.stdout }}/install-dir/install-config.yaml {{ user_home.stdout }}/install-dir/install-config.yaml.orig
 
   - name: Generate the ignition manifests
-    command: "openshift-install create manifests --dir={{ user_home.stdout }}/install-dir"
+    command: "/usr/local/bin/openshift-install create manifests --dir={{ user_home.stdout }}/install-dir"
 
   - name: Apply the patch to set mastersSchedulable to false
     patch:
@@ -76,7 +76,7 @@
       dest: "{{ user_home.stdout }}/install-dir/manifests/cluster-scheduler-02-config.yml"
 
   - name: Generate the ignition configs
-    command: "openshift-install create ignition-configs --dir={{ user_home.stdout }}/install-dir"
+    command: "/usr/local/bin/openshift-install create ignition-configs --dir={{ user_home.stdout }}/install-dir"
 
   - name: Copy append-bootstrap.ign file into install-dir
     template: 
