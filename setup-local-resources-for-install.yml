@@ -120,4 +120,4 @@
       pip3 install pathlib
   
   - name: Configure static ips
-    command: python {{ user_home.stdout }}/ocp4-utils/prepare.py
+    command: python3 {{ user_home.stdout }}/ocp4-utils/prepare.py
