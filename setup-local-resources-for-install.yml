@@ -1,7 +1,7 @@
 - hosts: "{{ hostname }}"
 
   environment: 
-    PATH: "{{ user_home.stdout }}/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
 
   vars:
     sshKey: "{{ lookup('file', '~/.ssh/ocp4.pub') }}"
