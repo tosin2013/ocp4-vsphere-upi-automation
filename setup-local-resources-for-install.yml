@@ -28,7 +28,7 @@
       path: "{{ user_home.stdout }}/.ssh/ocp4"
       force: false
 
-  - name: get user home directory
+  - name: get public key for install-config.yaml
     shell: >
             cat {{ user_home.stdout }}/.ssh/ocp4.pub
     changed_when: false
@@ -107,17 +107,21 @@
     git:
       repo: https://github.com/tosin2013/ocp4-utils.git
       dest: "{{ user_home.stdout }}/ocp4-utils"
+    when: configure_static_ips
 
   - name: Copy data.yaml file into ocp4-utils
     template:
       src: "templates/data.yaml.j2"
       dest: "{{ user_home.stdout }}/ocp4-utils/data.yaml"
+    when: configure_static_ips
 
   - name: Prepare ocp4-utils
     shell: |
       cd {{ user_home.stdout }}/ocp4-utils/
       pip3 install -r requirements.txt
       pip3 install pathlib
+    when: configure_static_ips
   
   - name: Configure static ips
     shell: cd {{ user_home.stdout }}/ocp4-utils/ && python3 {{ user_home.stdout }}/ocp4-utils/prepare.py
+    when: configure_static_ips

@@ -2,25 +2,30 @@
 
   environment: 
     PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
-    GOVC_USERNAME: "{{ vcenter.username }}"
-    GOVC_PASSWORD: "{{ vcenter.password }}"
-    GOVC_URL: "https://{{ vcenter.ip }}"
+    GOVC_USERNAME: "{{ vcenter_username }}"
+    GOVC_PASSWORD: "{{ vcenter_password }}"
+    GOVC_URL: "https://{{ vcenter_hostname }}"
     GOVC_INSECURE: 1
 
   vars:
-    folder : "/{{ vcenter.datacenter }}/vm/{{ config.clusterName }}"    
+    folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"    
 
   tasks:
-  
+  - name: get user home directory
+    shell: >
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
+
   - name: Download the ova file 
     get_url:
       url: "{{ download.ova }}"
-      dest: "{{ playbook_dir }}/downloads/{{vcenter.templateName}}.ova"
+      dest: "{{ user_home.stdout }}/downloads/{{vcenter.templateName}}.ova"
       validate_certs: no
     when: vcenter_preqs_met is not defined
   
   - name: Import the OVA file into the folder in vCenter 
-    command: "govc import.ova -options=vra.json -folder={{ folder }} -name={{ vcenter.templateName }} {{ playbook_dir }}/downloads/{{vcenter.templateName}}.ova"
+    command: "govc import.ova -options=vra.json -folder={{ folder }} -name={{ vcenter.templateName }} {{ user_home.stdout }}/downloads/{{vcenter.templateName}}.ova"
     when: vcenter_preqs_met is not defined
 
   - name: Remove the Network Adapter  

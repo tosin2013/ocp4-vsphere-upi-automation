@@ -1,11 +1,25 @@
 - hosts: webservers
   
   tasks:
-  
+  - name: get user home directory
+    shell: >
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
+
   - name: Copy the all the ignition files over to the webserver
     copy:
       src: "{{ item }}" 
       dest: "/var/www/html/ignition/"
       owner: root
     with_fileglob:
-      - "install-dir/*.ign"
+      - "{{ user_home.stdout }}/install-dir/*.ign"
+
+  - name: Copy the all the static ip  files over to the webserver
+    copy:
+      src: "{{ item }}" 
+      dest: "/var/www/html/ignition/"
+      owner: root
+    with_fileglob:
+      - "{{ user_home.stdout }}/ocp4-utils/configFiles/*.com"
+    when: configure_static_ips
