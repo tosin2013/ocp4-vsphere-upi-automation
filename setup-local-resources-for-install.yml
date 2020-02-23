@@ -42,7 +42,7 @@
     file: 
       path: "{{ user_home.stdout }}/{{ item }}"
       state: absent
-    with_items: ["downloads", "install-dir", "patches"] 
+    with_items: ["downloads", "install-dir", "patches", "ocp4-utils"] 
     when: clean is defined
 
   - name: Create install-dir, downloads and patches directories
@@ -116,7 +116,7 @@
   - name: Prepare ocp4-utils
     shell: |
       cd {{ user_home.stdout }}/ocp4-utils/
-      pip install -r requirements.txt
+      pip3 install -r requirements.txt
   
   - name: Configure static ips
     command: python {{ user_home.stdout }}/ocp4-utils/prepare.py
