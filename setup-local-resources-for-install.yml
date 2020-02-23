@@ -103,6 +103,11 @@
   - name: Get base64 version of worker.ign
     shell: "base64 -w0 {{ user_home.stdout }}/install-dir/worker.ign > {{ user_home.stdout }}/install-dir/worker.64"
 
+  - name: Copy vra.json for thin provisioing 
+    copy: 
+      src: "vra.json"
+      dest: "{{ user_home.stdout }}/vra.json"
+
   - name: Cloning  ocp4-utils repo
     git:
       repo: https://github.com/tosin2013/ocp4-utils.git

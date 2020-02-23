@@ -24,6 +24,17 @@
       validate_certs: no
     when: vcenter_preqs_met is not defined
   
+  - name: "Get  {{ download.ova }} sha information"
+    stat:
+      path: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
+      checksum_algorithm: sha256
+    register: ova_name_sha
+   
+  - name: 
+    debug: 
+      var: ova_name_sha
+    failed_when: ova_sha != ova_name_sha.stat.checksum
+
   - name: Import the OVA file into the folder in vCenter 
     command: "/usr/local/bin/govc import.ova -options=vra.json -folder={{ folder }} -name={{ templateName }} {{ user_home.stdout }}/downloads/{{templateName}}.ova"
     when: vcenter_preqs_met is not defined
