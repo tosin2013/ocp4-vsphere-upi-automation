@@ -105,10 +105,10 @@
 
   - name: Cloning  ocp4-utils repo
     git:
-    repo: https://github.com/tosin2013/ocp4-utils.git
-    dest: "{{ user_home.stdout }}/ocp4-utils"
+      repo: https://github.com/tosin2013/ocp4-utils.git
+      dest: "{{ user_home.stdout }}/ocp4-utils"
 
-  - name: Copy install-config.yaml file into install-dir
+  - name: Copy data.yaml file into ocp4-utils
     template:
       src: "templates/data.yaml.j2"
       dest: "{{ user_home.stdout }}/ocp4-utils/data.yaml"
