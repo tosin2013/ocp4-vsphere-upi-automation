@@ -11,7 +11,7 @@ paths:
   configs: "/configFiles"
   isos: "/isos"
 nodes:
-- hostname: "{{ bootstrap.name }}"."{{  config.clusterName }}"."{{  config.baseDomain }}"
+- hostname: "{{ bootstrap.name }}.{{  config.clusterName }}.{{  config.baseDomain }}"
   role: bootstrap
   install_device: "{{ install_device }}"
   create_iso: false
@@ -29,13 +29,13 @@ nodes:
   templateAppend: append-template.j2
   templateIsolinux: isolinux.cfg.j2
 {%  for master in masters %}
-- hostname: "{{ master.name }}"."{{ config.clusterName }}"."{{  config.baseDomain }}"
+- hostname: "{{ master.name }}.{{ config.clusterName }}.{{  config.baseDomain }}"
   role: master
   install_device: "{{ install_device }}"
   create_iso: false
   interfaces:
   - name: "{{ interface_name }}"
-    ip: 192.0.2.29
+    ip: "{{ master.ipaddr }}"
     cidr: "{{ cidr }}"
     gateway: "{{ gateway }}"
     dns:
@@ -47,14 +47,14 @@ nodes:
   templateAppend: append-template.j2
   templateIsolinux: isolinux.cfg.j2
 {% endfor %}
-
-- hostname: worker01."{{ config.clusterName }}"."{{ config.baseDomain }}"
+{%  for worker in workers %}
+- hostname: "{{ worker.name }}.{{ config.clusterName }}.{{ config.baseDomain }}"
   role: worker
   install_device: "{{ install_device }}"
   create_iso: false
   interfaces:
   - name: "{{ interface_name }}"
-    ip: 192.0.2.30
+    ip: "{{ worker.ipaddr }}"
     cidr: "{{ cidr }}"
     gateway: "{{ gateway }}"
     dns:
@@ -65,3 +65,4 @@ nodes:
   templateChrony: chrony.conf.j2
   templateAppend: append-template.j2
   templateIsolinux: isolinux.cfg.j2
+{% endfor %}
