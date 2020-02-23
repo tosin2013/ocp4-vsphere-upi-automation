@@ -28,9 +28,15 @@
       path: "{{ user_home.stdout }}/.ssh/ocp4"
       force: false
 
+  - name: get user home directory
+    shell: >
+            cat {{ user_home.stdout }}/.ssh/ocp4.pub
+    changed_when: false
+    register: sshkeyData
+
   - name: set sshKey
     set_fact:
-     sshKey: "{{ lookup('file', '{{ user_home.stdout }}/.ssh/ocp4.pub') }}"
+     sshKey: "{{ sshkeyData.stdout }}"
 
   - name: Create install-dir 
     file:
