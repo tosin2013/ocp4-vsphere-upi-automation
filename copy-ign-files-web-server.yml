@@ -1,4 +1,4 @@
-- hosts: webservers
+- hosts: "{{ hostname }}"
   
   tasks:
   - name: get user home directory
