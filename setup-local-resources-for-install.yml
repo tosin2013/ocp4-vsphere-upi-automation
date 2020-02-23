@@ -27,7 +27,7 @@
 
   - name: get user home directory
     shell: >
-            getent passwd {{ lookup('env','USER') }}  | awk -F: '{ print $6 }'
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
     changed_when: false
     register: user_home
 
