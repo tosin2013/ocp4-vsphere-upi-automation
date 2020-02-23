@@ -38,7 +38,14 @@
     set_fact:
      sshKey: "{{ sshkeyData.stdout }}"
 
-  - name: Create install-dir 
+  - name: Clean up existing bin, install-dir and downloads folders
+    file: 
+      path: "{{ user_home.stdout }}/{{ item }}"
+      state: absent
+    with_items: ["downloads", "install-dir", "patches"] 
+    when: clean is defined
+
+  - name: Create install-dir, downloads and patches directories
     file:
       path: "{{ user_home.stdout }}/{{ item }}"
       state: directory
