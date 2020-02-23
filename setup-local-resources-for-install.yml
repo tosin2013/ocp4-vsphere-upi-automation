@@ -76,7 +76,8 @@
       dest: "{{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch"
 
   - name: Apply the patch to set mastersSchedulable to false
-    command: patch < {{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch {{ user_home.stdout }}/install-dir/manifests/cluster-scheduler-02-config.yml
+    shell: |
+      patch < {{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch {{ user_home.stdout }}/install-dir/manifests/cluster-scheduler-02-config.yml
 
   - name: Generate the ignition configs
     command: "/usr/local/bin/openshift-install create ignition-configs --dir={{ user_home.stdout }}/install-dir"
