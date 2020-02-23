@@ -3,9 +3,6 @@
   environment: 
     PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
 
-  vars:
-    sshKey: "{{ lookup('file', '~/.ssh/ocp4.pub') }}"
-
   tasks:
 
   - name: Install the necessary linux packages which will be needed later in the ansible run
@@ -20,16 +17,20 @@
   - name: "Install pyvmomi using pip3"
     shell: pip3 install --upgrade pyvmomi
 
-  - name: Generate a SSH key-pair
-    openssh_keypair:
-      path: ~/.ssh/ocp4
-      force: false
-
   - name: get user home directory
     shell: >
             getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
     changed_when: false
     register: user_home
+
+  - name: Generate a SSH key-pair
+    openssh_keypair:
+      path: "{{ user_home.stdout }}/.ssh/ocp4"
+      force: false
+
+  - name: set sshKey
+    set_fact:
+     sshKey: "{{ lookup('file', '{{ user_home.stdout }}/.ssh/ocp4.pub') }}"
 
   - name: Create install-dir 
     file:
