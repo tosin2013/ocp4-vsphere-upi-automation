@@ -103,7 +103,20 @@
   - name: Get base64 version of worker.ign
     shell: "base64 -w0 {{ user_home.stdout }}/install-dir/worker.ign > {{ user_home.stdout }}/install-dir/worker.64"
 
+  - name: Cloning  ocp4-utils repo
+    git:
+    repo: https://github.com/tosin2013/ocp4-utils.git
+    dest: "{{ user_home.stdout }}/ocp4-utils"
+
   - name: Copy install-config.yaml file into install-dir
     template:
       src: "templates/data.yaml.j2"
-      dest: "{{ user_home.stdout }}/install-dir/data.yaml"
+      dest: "{{ user_home.stdout }}/ocp4-utils/data.yaml"
+
+  - name: Prepare ocp4-utils
+    shell: |
+      cd {{ user_home.stdout }}/ocp4-utils/
+      pip install -r requirements.txt
+  
+  - name: Configure static ips
+    command: python {{ user_home.stdout }}/ocp4-utils/prepare.py
