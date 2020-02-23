@@ -45,7 +45,7 @@
       validate_certs: no    
 
   - name: Unarchive govc
-    shell: gzip -dkc "{{ user_home.stdout }}/downloads/govc.gz" > "/usr/local/bin/govc"
+    shell: gzip -dc "{{ user_home.stdout }}/downloads/govc.gz" > "/usr/local/bin/govc"
 
   - name: Make govc executable
     file:
