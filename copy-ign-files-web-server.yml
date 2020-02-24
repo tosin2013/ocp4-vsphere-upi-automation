@@ -14,7 +14,6 @@
       patterns: "*.*"
     register: files_to_delete
     when: clean is defined
-    delegate_to: "{{ hostname }}"
 
   - name: Ansible remove files in  /var/www/html/ignition/
     file:
@@ -22,7 +21,6 @@
       state: absent
     with_items: "{{ files_to_delete.files }}"
     when: clean is defined
-    delegate_to: "{{ hostname }}"
     
   - name: configure web server files
     script: "configure-webserver.sh --some-argument  {{ user_home.stdout }}"
