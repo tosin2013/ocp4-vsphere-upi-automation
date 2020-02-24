@@ -17,12 +17,9 @@
       shell: >
           cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
       changed_when: false
-      register: bootstrap64ttt
+      register: bootstrap64
       when: configure_static_ips == False
 
-    - name: Setting facts 
-      set_fact:
-        bootstrap64val: bootstrap64ttt.stdout
     - name: get append-bootstrap.64 static ignition file
       shell: >
           cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
@@ -31,6 +28,10 @@
       when: 
         - configure_static_ips == True
         -  bootstrap64.stdout != ""
+
+    - name: Setting bootstrap64 fact
+      set_fact:
+        bootstrap64val: "{{ bootstrap64.stdout }}"
 
     - name: "Bootstrap base64"
       debug:
@@ -57,7 +58,7 @@
           memory_reservation_lock: True
         networks:
         - name: "{{ vmware_network }}"
-          mac: "{{ macaddr }}"
+          mac: "{{ bootstrap.macaddr }}"
         wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
