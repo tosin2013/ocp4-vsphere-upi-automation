@@ -25,7 +25,9 @@
           cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
       changed_when: false
       register: bootstrap64
-      when: configure_static_ips == True
+      when: 
+        - configure_static_ips == True
+        -  bootstrap64.stdout != ""
 
     - name: "Bootstrap base64"
       debug:
