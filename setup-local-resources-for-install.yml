@@ -112,6 +112,9 @@
     copy: 
       src: "configure-webserver.sh"
       dest: "{{ user_home.stdout }}/configure-webserver.sh"
+      owner: root
+      group: root
+      mode: '0755'
 
   - name: Cloning  ocp4-utils repo
     git:
