@@ -1,0 +1,2 @@
+
+- import_playbook: setup-vcenter-vms.yml
