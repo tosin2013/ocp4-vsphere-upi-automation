@@ -43,7 +43,7 @@
     when:  ova_file.stat.exists == True
 
   - name: Check if template is already created
-    command: /usr/local/bin/govc  vm.info -k $(echo "rhcos-4.3.0-x86_64-vmware.ova" | sed -e "s/.ova//")
+    shell: "/usr/local/bin/govc  vm.info -k $(echo {{templateName}}.ova | sed -e 's/.ova//')"
     register: template_created
 
   - name: Import the OVA file into the folder in vCenter 
