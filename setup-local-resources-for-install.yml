@@ -108,6 +108,11 @@
       src: "vra.json"
       dest: "{{ user_home.stdout }}/vra.json"
 
+  - name: Copy configure-webserver.sh for webserver configuration
+    copy: 
+      src: "configure-webserver.sh"
+      dest: "{{ user_home.stdout }}/configure-webserver.sh"
+
   - name: Cloning  ocp4-utils repo
     git:
       repo: https://github.com/tosin2013/ocp4-utils.git

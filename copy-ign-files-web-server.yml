@@ -3,36 +3,14 @@
   tasks:
   - name: get user home directory
     shell: >
-            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
-            chmod 0775 {{ user_home.stdout }}/install-dir/*.ign
-            cp -avi {{ user_home.stdout }}/install-dir/*.ign /var/www/html/ignition/
+           
     changed_when: false
     register: user_home
 
-  - name: Change permissions and ownerfile of igns files
-    file:
-      path: "{{ user_home.stdout }}/install-dir/{{ item }}"
-      owner: www-data
-      group: www-data
-      mode: '0775'
-    with_fileglob:
-      - "{{ user_home.stdout }}/install-dir/*.ign"
-
-  - name: Copy the all the ignition files over to the webserver
-    copy:
-      src: "{{ item }}" 
-      dest: "/var/www/html/ignition/"
-      owner: root
-    with_fileglob:
-      - "{{ user_home.stdout }}/install-dir/*.ign"
-    delegate_to: "{{ hostname }}" 
-
-  - name: Copy the all the static ip  files over to the webserver
-    copy:
-      src: "{{ item }}" 
-      dest: "/var/www/html/ignition/"
-      owner: root
-    with_fileglob:
-      - "{{ user_home.stdout }}/ocp4-utils/configFiles/*.com"
-    when: configure_static_ips
-    delegate_to: "{{ hostname }}" 
+  - name: clean up iginition directory 
+    script: | 
+      cd /var/www/html/ignition/ && rm -rf *
+    when: clean is defined
+    
+  - name: configure web server files
+    script: "{{ user_home.stdout }}/configure-webserver.sh --some-argument  {{ user_home.stdout }}"
