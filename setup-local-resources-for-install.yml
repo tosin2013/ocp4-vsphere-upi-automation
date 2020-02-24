@@ -6,7 +6,7 @@
   tasks:
 
   - name: Install the necessary linux packages which will be needed later in the ansible run
-    dnf:
+    yum:
       name:
         - patch
         - gzip
