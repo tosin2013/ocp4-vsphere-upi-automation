@@ -8,9 +8,18 @@
     changed_when: false
     register: user_home
 
-  - name: clean up iginition directory 
-    script: | 
-      cd /var/www/html/ignition/ && rm -rf *
+  - name: Ansible delete /var/www/html/ignition/ files
+    find:
+      paths: /etc/Ansible
+      patterns: "*.*"
+    register: files_to_delete
+    when: clean is defined
+
+  - name: Ansible remove files in  /var/www/html/ignition/
+    file:
+      path: /var/www/html/ignition/
+      state: absent
+    with_items: "{{ files_to_delete.files }}"
     when: clean is defined
     
   - name: configure web server files
