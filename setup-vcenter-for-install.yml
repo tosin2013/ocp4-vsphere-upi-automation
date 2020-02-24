@@ -24,18 +24,25 @@
       validate_certs: no
     when: vcenter_preqs_met is not defined
   
+  - name: "check if {{templateName}}.ova exists"
+    stat: 
+      path: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
+    register: ova_file
+
   - name: "Get  {{ download.ova }} sha information"
     stat:
       path: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
       checksum_algorithm: sha256
     register: ova_name_sha
+    when:  ova_file.stat.exists == True
    
   - name: 
     debug: 
       var: ova_name_sha
     failed_when: ova_sha != ova_name_sha.stat.checksum
+    when:  ova_file.stat.exists == True
 
-  - name: Check if tempalte is already created
+  - name: Check if template is already created
     command: /usr/local/bin/govc  vm.info -k $(echo "rhcos-4.3.0-x86_64-vmware.ova" | sed -e "s/.ova//")
     register: template_created
 
