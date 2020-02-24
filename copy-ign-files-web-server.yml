@@ -10,7 +10,7 @@
 
   - name: Ansible delete /var/www/html/ignition/ files
     find:
-      paths: /etc/Ansible
+      paths: /var/www/html/ignition/ 
       patterns: "*.*"
     register: files_to_delete
     when: clean is defined
@@ -18,7 +18,7 @@
 
   - name: Ansible remove files in  /var/www/html/ignition/
     file:
-      path: /var/www/html/ignition/
+      path: "/var/www/html/ignition/{{ item }}"
       state: absent
     with_items: "{{ files_to_delete.files }}"
     when: clean is defined
