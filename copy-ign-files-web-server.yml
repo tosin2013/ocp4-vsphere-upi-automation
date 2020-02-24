@@ -24,3 +24,4 @@
     
   - name: configure web server files
     script: "{{ user_home.stdout }}/configure-webserver.sh --some-argument  {{ user_home.stdout }}"
+    remote_src: yes
