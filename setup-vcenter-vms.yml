@@ -20,6 +20,10 @@
       register: bootstrap64
       when: configure_static_ips == False
 
+    - name: Setting bootstrap64 fact
+      set_fact:
+        bootstrap64val: "{{ bootstrap64.stdout }}"
+        
     - name: get append-bootstrap.64 static ignition file
       shell: >
           cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
@@ -29,9 +33,6 @@
         - configure_static_ips == True
         -  bootstrap64.stdout != ""
 
-    - name: Setting bootstrap64 fact
-      set_fact:
-        bootstrap64val: "{{ bootstrap64.stdout }}"
 
     - name: "Bootstrap base64"
       debug:
