@@ -1,8 +1,8 @@
 ---
-url_ignition_file: https://your.site.example.com/pub/ocp42
-download_url: https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
-bios_image: http://your.site.example.com/pub/ocp42/bios/bios.raw.gz
-append_url: http://your.site.example.com/pub/ocp42/append
+url_ignition_file: "{{ url_ignition_file }}"
+download_url: "{{ download_url }}"
+bios_image: "{{ bios_image }}"
+append_url: "{{ append_url }}"
 iso_file: /path/to/rhcos-x.x.x-arch-installer.iso
 paths:
   generic: "/etc"
