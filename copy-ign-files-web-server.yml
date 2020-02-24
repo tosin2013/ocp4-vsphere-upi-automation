@@ -25,5 +25,5 @@
     delegate_to: "{{ hostname }}"
     
   - name: configure web server files
-    script: "{{ user_home.stdout }}/configure-webserver.sh --some-argument  {{ user_home.stdout }}"
+    script: "configure-webserver.sh --some-argument  {{ user_home.stdout }}"
     delegate_to: "{{ hostname }}"
