@@ -1,13 +1,19 @@
 ---
-- hosts: localhost
-  vars:
-    bootstrapContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/append-bootstrap.64') }}"
-    masterContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/master.64') }}"
-    workerContent : "{{ lookup('file', '{{ playbook_dir }}/install-dir/worker.64') }}"
-    templateName : rhcos-4.3.0-x86_64-vmware
-    folder : "/{{ vcenter.datacenter }}/vm/{{ config.clusterName }}"
-    datastore: "{{ vcenter.datastore }}"
+- hosts: "{{ hostname }}"
   tasks:
+    - name: get user home directory
+      shell: >
+              getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+    - name: Setting facts 
+      set_fact:
+        bootstrapContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/append-bootstrap.64') }}"
+        masterContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/master.64') }}"
+        workerContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/worker.64') }}"
+        templateName : "{{ templateName }}"
+        folder : "/{{ vmware_datacenter }}/vm/{{ vmware_clusterName }}"
+        datastore: "{{ vmware_datastore }}"
     - name: "Bootstrap base64"
       debug:
         msg: "{{ bootstrapContent }}"
@@ -19,10 +25,10 @@
         msg: "{{ workerContent }}"
     - name: Create bootstrap VM from the template
       vmware_guest:
-        hostname: "{{ vcenter.ip }}"
-        username: "{{ vcenter.username }}"
-        password: "{{ vcenter.password }}"
-        datacenter: dc
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
         validate_certs: no
         folder: "{{ folder }}"
         name: bootstrap
@@ -45,9 +51,9 @@
             value: "{{ bootstrapContent }}"
     - name: Create master VMs from ther template
       vmware_guest:
-        hostname: "{{ vcenter.ip }}"
-        username: "{{ vcenter.username }}"
-        password: "{{ vcenter.password }}"
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
         datacenter: dc
         validate_certs: no
         folder: "{{ folder }}"
@@ -70,14 +76,14 @@
          - key: guestinfo.ignition.config.data
            value: "{{ masterContent }}"
       loop:
-        - { name : "master0", mac: "00:50:56:a8:aa:a2"}
-        - { name : "master1", mac: "00:50:56:a8:aa:a3"}
-        - { name : "master2", mac: "00:50:56:a8:aa:a4"}
+        - { name : "master0", mac: "52:54:00:e7:9d:67"}
+        - { name : "master1", mac: "52:54:00:80:16:23"}
+        - { name : "master2", mac: "52:54:00:d5:1c:39"}
     - name: Create worked VMs from the template
       vmware_guest:
-        hostname: "{{ vcenter.ip }}"
-        username: "{{ vcenter.username }}"
-        password: "{{ vcenter.password }}"
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
         datacenter: dc
         validate_certs: no
         folder: "{{ folder }}"
@@ -100,6 +106,6 @@
          - key: guestinfo.ignition.config.data
            value: "{{ workerContent }}"
       loop:
-        - { name : "worker0", mac: "00:50:56:a8:aa:a6"}
-        - { name : "worker1", mac: "00:50:56:a8:aa:a7"}
-        - { name : "worker2", mac: "00:50:56:a8:aa:a8"}
+        - { name : "worker0", mac: "52:54:00:f4:26:a1"}
+        - { name : "worker1", mac: "52:54:00:82:90:00"}
+        - { name : "worker2", mac: "52:54:00:8e:10:34"}
