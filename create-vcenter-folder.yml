@@ -11,8 +11,10 @@
     folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
 
   tasks:
+  - name: Check if folder already exists
+    command:  "/usr/local/bin/govc {{ folder }}"
+    register: folder_check
 
   - name: Create the vCenter folder by the same name as the cluster
     command: "/usr/local/bin/govc folder.create {{ folder }}"
-    when: vcenter_preqs_met is not defined
-    ignore_errors: yes
+    when:  '"not found" in folder_check'
