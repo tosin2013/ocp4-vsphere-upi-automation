@@ -31,7 +31,7 @@
 
     - name: "Bootstrap base64"
       debug:
-        msg: "{{ bootstrap64.stdout }}"
+        msg: "{{ bootstrap64 }}"
 
     - name: Create bootstrap VM from the template
       vmware_guest:
