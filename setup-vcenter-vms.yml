@@ -22,7 +22,7 @@
 
     - name: get append-bootstrap.64 static ignition file
       shell: >
-            {{ user_home.stdout }}/ocp4-utils/append-bootstrap.64
+            {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ clusterName }}.{{ baseDomain }}.64
       changed_when: false
       register: bootstrap64
       when: configure_static_ips
@@ -36,7 +36,7 @@
 
     - name: get master.64 static ignition file
       shell: >
-            {{ user_home.stdout }}/ocp4-utils/master.64
+            {{ user_home.stdout }}/ocp4-utils/configFiles/master.{{ clusterName }}.{{ baseDomain }}.64
       changed_when: false
       register: master64
       when: configure_static_ips
@@ -50,7 +50,7 @@
 
     - name: get worker.64 static ignition file
       shell: >
-            {{ user_home.stdout }}/ocp4-utils/worker.64
+            {{ user_home.stdout }}/ocp4-utils/configFiles/worker.{{ clusterName }}.{{ baseDomain }}.64
       changed_when: false
       register: worker64
       when: configure_static_ips
