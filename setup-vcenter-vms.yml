@@ -30,12 +30,7 @@
     - name: "Bootstrap base64"
       debug:
         msg: "{{ bootstrap64.stdout }}"
-    - name: "Master base64"
-      debug:
-        msg: "{{ master64.stdout }}"
-    - name: "Worker base64 "
-      debug:
-        msg: "{{ worker64.stdout }}"
+
     - name: Create bootstrap VM from the template
       vmware_guest:
         hostname: "{{ vcenter_hostname }}"
@@ -56,10 +51,9 @@
           num_cpus: 4
           memory_reservation_lock: True
         networks:
-        - name: VM Network
-          mac: "00:50:56:a8:aa:a1"
+        - name: "{{ vmware_network }}"
+          mac: "{{ macaddr }}"
         wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
             value: "{{ bootstrap64.stdout }}"
-    
