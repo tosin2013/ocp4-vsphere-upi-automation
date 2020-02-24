@@ -7,8 +7,30 @@
     changed_when: false
     register: user_home
 
+  - name: Change permissions and ownerdile of igns files
+    file:
+      path: "{{ user_home.stdout }}/install-dir/{{ item }}"
+      owner: www-data
+      group: www-data
+      mode: '0775'
+    with_fileglob:
+      - "{{ user_home.stdout }}/install-dir/*.ign"
+
   - name: Copy the all the ignition files over to the webserver
-    command: "/usr/bin/cp -avi {{ user_home.stdout }}/install-dir/*.ign /var/www/html/ignition/"
-  
+    copy:
+      src: "{{ item }}" 
+      dest: "/var/www/html/ignition/"
+      owner: root
+    with_fileglob:
+      - "{{ user_home.stdout }}/install-dir/*.ign"
+    delegate_to: "{{ hostname }}" 
+
   - name: Copy the all the static ip  files over to the webserver
-    command: "/usr/bin/cp {{ user_home.stdout }}/ocp4-utils/configFiles/*.com /var/www/html/ignition/"  
+    copy:
+      src: "{{ item }}" 
+      dest: "/var/www/html/ignition/"
+      owner: root
+    with_fileglob:
+      - "{{ user_home.stdout }}/ocp4-utils/configFiles/*.com"
+    when: configure_static_ips
+    delegate_to: "{{ hostname }}" 
