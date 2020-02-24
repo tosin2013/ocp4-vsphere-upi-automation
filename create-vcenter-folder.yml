@@ -13,8 +13,8 @@
   tasks:
   - name: Check if folder already exists
     command:  "/usr/local/bin/govc folder_check {{ folder }}"
-    register: folder_check.stdout
+    register: folder_check
 
   - name: Create the vCenter folder by the same name as the cluster
     command: "/usr/local/bin/govc folder.create {{ folder }}"
-    when:  '"not found" in folder_check'
+    when:  '"not found" in folder_check.stdout'
