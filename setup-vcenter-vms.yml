@@ -20,6 +20,9 @@
       register: bootstrap64ttt
       when: configure_static_ips == False
 
+    - name: Setting facts 
+      set_fact:
+        bootstrap64val: bootstrap64ttt.stdout
     - name: get append-bootstrap.64 static ignition file
       shell: >
           cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
@@ -31,7 +34,7 @@
 
     - name: "Bootstrap base64"
       debug:
-        msg: "{{ bootstrap64ttt.std_out }}"
+        msg: "{{ bootstrap64val }}"
 
     - name: Create bootstrap VM from the template
       vmware_guest:
@@ -58,4 +61,4 @@
         wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
-            value: "{{ bootstrap64ttt.stdout }}"
+            value: "{{ bootstrap64val }}"
