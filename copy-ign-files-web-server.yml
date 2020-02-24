@@ -14,6 +14,7 @@
       owner: root
     with_fileglob:
       - "{{ user_home.stdout }}/install-dir/*.ign"
+    delegate_to: "{{ hostname }}" 
 
   - name: Copy the all the static ip  files over to the webserver
     copy:
@@ -23,3 +24,4 @@
     with_fileglob:
       - "{{ user_home.stdout }}/ocp4-utils/configFiles/*.com"
     when: configure_static_ips
+    delegate_to: "{{ hostname }}" 
