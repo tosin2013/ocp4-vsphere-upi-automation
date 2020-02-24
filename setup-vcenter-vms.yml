@@ -36,9 +36,17 @@
       set_fact:
         bootstrap64staticval: "{{ bootstrap64static.stdout }}"
 
-    - name: "Bootstrap base64"
+    - name: "Bootstrap base64 DHCP base64"
       debug:
         msg: "{{ bootstrap64val }}"
+      when: 
+        - configure_static_ips == False
+
+    - name: "Bootstrap base64 static base64"
+      debug:
+        msg: "{{ bootstrap64staticval }}"
+      when: 
+        - configure_static_ips == True
 
     - name: Create bootstrap VM from the template via DHCP
       vmware_guest:
