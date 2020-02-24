@@ -27,34 +27,6 @@
       register: bootstrap64
       when: configure_static_ips
 
-    - name: get master dhcp ignition file
-      shell: >
-          cat {{ user_home.stdout }}/install-dir/master.64
-      changed_when: false
-      register: master64
-      when: not configure_static_ips
-
-    - name: get master.64 static ignition file
-      shell: >
-           cat {{ user_home.stdout }}/ocp4-utils/configFiles/master0.{{ config.clusterName }}.{{ config.baseDomain }}.64
-      changed_when: false
-      register: master64
-      when: configure_static_ips
-
-    - name: get worker.64 dhcp ignition file
-      shell: >
-           cat  {{ user_home.stdout }}/install-dir/worker.64
-      changed_when: false
-      register: worker64
-      when: not configure_static_ips
-
-    - name: get worker.64 static ignition file
-      shell: >
-           cat {{ user_home.stdout }}/ocp4-utils/configFiles/worker0.{{ config.clusterName }}.{{ config.baseDomain }}.64
-      changed_when: false
-      register: worker64
-      when: configure_static_ips
-
     - name: "Bootstrap base64"
       debug:
         msg: "{{ bootstrap64.stdout }}"
@@ -90,63 +62,4 @@
         customvalues:
           - key: guestinfo.ignition.config.data
             value: "{{ bootstrap64.stdout }}"
-    - name: Create master VMs from ther template
-      vmware_guest:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
-        datacenter: dc
-        validate_certs: no
-        folder: "{{ folder }}"
-        name: "{{ item.name }}"
-        state: poweredoff
-        template: "{{ templateName }}"
-        disk:
-        - size_gb: 120
-          type: thin
-          datastore: "{{ datastore }}"
-        hardware:
-          memory_mb: 16384
-          num_cpus: 4
-          memory_reservation_lock: True
-        networks:
-        - name: VM Network
-          mac: "{{ item.mac }}"
-        wait_for_ip_address: no
-        customvalues:
-         - key: guestinfo.ignition.config.data
-           value: "{{ master64.stdout }}"
-      loop:
-        - { name : "master0", mac: "52:54:00:e7:9d:67"}
-        - { name : "master1", mac: "52:54:00:80:16:23"}
-        - { name : "master2", mac: "52:54:00:d5:1c:39"}
-    - name: Create worked VMs from the template
-      vmware_guest:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
-        datacenter: dc
-        validate_certs: no
-        folder: "{{ folder }}"
-        name: "{{ item.name }}"
-        state: poweredoff
-        template: "{{ templateName }}"
-        disk:
-        - size_gb: 120
-          type: thin
-          datastore: "{{ datastore }}"
-        hardware:
-          memory_mb: 16384
-          num_cpus: 4
-          memory_reservation_lock: True
-        networks:
-        - name: VM Network
-          mac: "{{ item.mac }}"
-        wait_for_ip_address: no
-        customvalues:
-         - key: guestinfo.ignition.config.data
-           value: "{{ worker64.stdout }}"
-      loop:
-        - { name : "worker0", mac: "52:54:00:f4:26:a1"}
-        - { name : "worker1", mac: "52:54:00:82:90:00"}
-        - { name : "worker2", mac: "52:54:00:8e:10:34"}
+    
