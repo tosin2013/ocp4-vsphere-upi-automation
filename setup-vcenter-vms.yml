@@ -8,21 +8,61 @@
       register: user_home
     - name: Setting facts 
       set_fact:
-        bootstrapContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/append-bootstrap.64') }}"
-        masterContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/master.64') }}"
-        workerContent : "{{ lookup('file', '{{ user_home.stdout }}/install-dir/worker.64') }}"
         templateName : "{{ templateName }}"
         folder : "/{{ vmware_datacenter }}/vm/{{ vmware_clusterName }}"
         datastore: "{{ vmware_datastore }}"
+
+    - name: get append-bootstrap.64 dhcp ignition file
+      shell: >
+            {{ user_home.stdout }}/install-dir/append-bootstrap.64
+      changed_when: false
+      register: bootstrap64
+      when: not configure_static_ips
+
+    - name: get append-bootstrap.64 static ignition file
+      shell: >
+            {{ user_home.stdout }}/ocp4-utils/append-bootstrap.64
+      changed_when: false
+      register: bootstrap64
+      when: configure_static_ips
+
+    - name: get master dhcp ignition file
+      shell: >
+            {{ user_home.stdout }}/install-dir/master.64
+      changed_when: false
+      register: master64
+      when: not configure_static_ips
+
+    - name: get master.64 static ignition file
+      shell: >
+            {{ user_home.stdout }}/ocp4-utils/master.64
+      changed_when: false
+      register: master64
+      when: configure_static_ips
+
+    - name: get worker.64 dhcp ignition file
+      shell: >
+            {{ user_home.stdout }}/install-dir/worker.64
+      changed_when: false
+      register: worker64
+      when: not configure_static_ips
+
+    - name: get worker.64 static ignition file
+      shell: >
+            {{ user_home.stdout }}/ocp4-utils/worker.64
+      changed_when: false
+      register: worker64
+      when: configure_static_ips
+
     - name: "Bootstrap base64"
       debug:
-        msg: "{{ bootstrapContent }}"
+        msg: "{{ bootstrap64.stdout }}"
     - name: "Master base64"
       debug:
-        msg: "{{ masterContent }}"
+        msg: "{{ master64.stdout }}"
     - name: "Worker base64 "
       debug:
-        msg: "{{ workerContent }}"
+        msg: "{{ worker64.stdout }}"
     - name: Create bootstrap VM from the template
       vmware_guest:
         hostname: "{{ vcenter_hostname }}"
@@ -48,7 +88,7 @@
         wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
-            value: "{{ bootstrapContent }}"
+            value: "{{ bootstrap64.stdout }}"
     - name: Create master VMs from ther template
       vmware_guest:
         hostname: "{{ vcenter_hostname }}"
@@ -74,7 +114,7 @@
         wait_for_ip_address: no
         customvalues:
          - key: guestinfo.ignition.config.data
-           value: "{{ masterContent }}"
+           value: "{{ master64.stdout }}"
       loop:
         - { name : "master0", mac: "52:54:00:e7:9d:67"}
         - { name : "master1", mac: "52:54:00:80:16:23"}
@@ -104,7 +144,7 @@
         wait_for_ip_address: no
         customvalues:
          - key: guestinfo.ignition.config.data
-           value: "{{ workerContent }}"
+           value: "{{ worker64.stdout }}"
       loop:
         - { name : "worker0", mac: "52:54:00:f4:26:a1"}
         - { name : "worker1", mac: "52:54:00:82:90:00"}
