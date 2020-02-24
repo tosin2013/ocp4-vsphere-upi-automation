@@ -17,11 +17,10 @@
 
   - name: Ansible remove files in  /var/www/html/ignition/
     file:
-      path: "/var/www/html/ignition/{{ item }}"
+      path:  "{{ item.path }}"
       state: absent
     with_items: "{{ files_to_delete.files }}"
     when: clean is defined
     
   - name: configure web server files
     script: "configure-webserver.sh --some-argument  {{ user_home.stdout }}"
-    delegate_to: "{{ hostname }}"
