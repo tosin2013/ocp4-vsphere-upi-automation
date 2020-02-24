@@ -5,6 +5,7 @@
     GOVC_USERNAME: "{{ vcenter_username }}"
     GOVC_PASSWORD: "{{ vcenter_password }}"
     GOVC_URL: "https://{{ vcenter_hostname }}"
+    GOVC_DATASTORE: "{{ vmware_datastore }}"
     GOVC_INSECURE: 1
 
   vars:
@@ -36,7 +37,7 @@
     failed_when: ova_sha != ova_name_sha.stat.checksum
 
   - name: Import the OVA file into the folder in vCenter 
-    command: "/usr/local/bin/govc import.ova -options={{ user_home.stdout }}/vra.json -folder={{ folder }} -name={{ templateName }} {{ user_home.stdout }}/downloads/{{templateName}}.ova"
+    command: "/usr/local/bin/govc import.ova -options={{ user_home.stdout }}/vra.json -folder={{ folder }} -name={{ templateName }} {{ user_home.stdout }}/downloads/{{templateName}}.ova  -ds=${GOVC_DATASTORE}"
     when: vcenter_preqs_met is not defined
 
   - name: Remove the Network Adapter  
