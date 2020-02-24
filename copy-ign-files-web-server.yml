@@ -4,10 +4,12 @@
   - name: get user home directory
     shell: >
             getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+            chmod 0775 {{ user_home.stdout }}/install-dir/*.ign
+            cp -avi {{ user_home.stdout }}/install-dir/*.ign /var/www/html/ignition/
     changed_when: false
     register: user_home
 
-  - name: Change permissions and ownerdile of igns files
+  - name: Change permissions and ownerfile of igns files
     file:
       path: "{{ user_home.stdout }}/install-dir/{{ item }}"
       owner: www-data
