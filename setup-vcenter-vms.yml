@@ -35,6 +35,8 @@
     - name: Setting bootstrap64static fact
       set_fact:
         bootstrap64staticval: "{{ bootstrap64static.stdout }}"
+      when: 
+        - configure_static_ips == True
 
     - name: "Bootstrap base64 DHCP base64"
       debug:
