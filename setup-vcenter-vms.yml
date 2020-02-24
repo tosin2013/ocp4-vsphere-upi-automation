@@ -18,14 +18,14 @@
           cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
       changed_when: false
       register: bootstrap64
-      when: not configure_static_ips
+      when: configure_static_ips == False
 
     - name: get append-bootstrap.64 static ignition file
       shell: >
           cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
       changed_when: false
       register: bootstrap64
-      when: configure_static_ips
+      when: configure_static_ips == True
 
     - name: "Bootstrap base64"
       debug:
