@@ -17,6 +17,9 @@
   - name: "Install pyvmomi using pip3"
     shell: pip3 install --upgrade pyvmomi
 
+  - name: "Install requests using pip3"
+    shell: pip3 install --upgrade requests
+
   - name: get user home directory
     shell: >
             getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
