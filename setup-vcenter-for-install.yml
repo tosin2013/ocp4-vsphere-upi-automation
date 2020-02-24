@@ -48,12 +48,12 @@
 
   - name: Import the OVA file into the folder in vCenter 
     command: "/usr/local/bin/govc import.ova -options={{ user_home.stdout }}/vra.json -folder={{ folder }} -name={{ templateName }} -ds={{ vmware_datastore }} {{ user_home.stdout }}/downloads/{{templateName}}.ova  "
-    when: template_created.stdout is not defined
+    when: template_created.stdout == ""
 
   - name: Remove the Network Adapter  
     command: "/usr/local/bin/govc device.remove -vm {{ folder }}/{{ templateName }} ethernet-0"
-    when: template_created.stdout is not defined
+    when: template_created.stdout == ""
 
   - name: Update VM options on the template
     command: "/usr/local/bin/govc vm.change -vm {{ folder }}/{{ templateName }} -latency high -e=disk.EnableUUID=TRUE -e=guestinfo.ignition.config.data.encoding=base64 -e=guestinfo.ignition.config.data=blah"
-    when: template_created.stdout is not defined      
+    when: template_created.stdout == ""
