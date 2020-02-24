@@ -6,10 +6,11 @@
               getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
       changed_when: false
       register: user_home
+
     - name: Setting facts 
       set_fact:
         templateName : "{{ templateName }}"
-        folder : "/{{ vmware_datacenter }}/vm/{{ vmware_clusterName }}"
+        folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
         datastore: "{{ vmware_datastore }}"
 
     - name: get append-bootstrap.64 dhcp ignition file
