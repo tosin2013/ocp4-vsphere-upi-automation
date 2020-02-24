@@ -17,7 +17,7 @@
       shell: >
           cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
       changed_when: false
-      register: bootstrap64
+      register: bootstrap64ttt
       when: configure_static_ips == False
 
     - name: get append-bootstrap.64 static ignition file
@@ -31,7 +31,7 @@
 
     - name: "Bootstrap base64"
       debug:
-        msg: "{{ bootstrap64 }}"
+        msg: "{{ bootstrap64ttt.std_out }}"
 
     - name: Create bootstrap VM from the template
       vmware_guest:
@@ -58,4 +58,4 @@
         wait_for_ip_address: no
         customvalues:
           - key: guestinfo.ignition.config.data
-            value: "{{ bootstrap64.stdout }}"
+            value: "{{ bootstrap64ttt.stdout }}"
