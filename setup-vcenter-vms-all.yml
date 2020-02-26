@@ -8,7 +8,7 @@
     register: user_home
   
   - pip:
-    requirements: requirements.txt
+      requirements: requirements.txt
 
   - name: Setting facts 
     set_fact:
