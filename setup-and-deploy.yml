@@ -1,2 +1,3 @@
 ---
 - import_playbook: setup-vcenter-vms-all.yml
+- import_playbook: boot-coreos-vms-all.yml

@@ -1,0 +1,13 @@
+- name: Boot Node
+  vmware_guest_powerstate:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    folder: "{{ folder }}"
+    moid: "{{ item.name }}"
+    state: powered-on
+  register: deploy
+
+- pause:
+    seconds: 30

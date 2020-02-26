@@ -1,0 +1,36 @@
+---
+- hosts: "{{ hostname }}"
+  tasks:
+  - name: get user home directory
+    shell: >
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
+
+  - name: Setting facts 
+    set_fact:
+      templateName : "{{ templateName }}"
+      folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
+      datastore: "{{ vmware_datastore }}"
+
+  - name: Power On Bootstrap Node
+    vmware_guest_powerstate:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      folder: "{{ folder }}"
+      moid: bootstrap
+      state: powered-on
+    register: deploy
+
+  - pause:
+      seconds: 30
+
+  - name: Power On Master Nodes
+    include: boot-coreos-vms-all.yml
+    loop: "{{ masters }}"
+
+  - name: Power On Worker Nodes
+    include: boot-coreos-vms-all.yml
+    loop: "{{ workers }}"
