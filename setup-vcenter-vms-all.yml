@@ -8,8 +8,8 @@
     register: user_home
   
   - pip:
-    name: requests
-    
+    requirements: requirements.txt
+
   - name: Setting facts 
     set_fact:
       templateName : "{{ templateName }}"
