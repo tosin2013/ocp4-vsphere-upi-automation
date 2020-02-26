@@ -6,15 +6,6 @@
             getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
     changed_when: false
     register: user_home
-  
-  - name: "Install pyvmomi using pip"
-    shell: |
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python get-pip.py
-      pip install --upgrade pyvmomi
-
-  - name: "Install requests using pip"
-    shell: pip install --upgrade requests
 
   - name: Setting facts 
     set_fact:

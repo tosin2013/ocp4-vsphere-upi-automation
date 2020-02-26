@@ -1,14 +1,5 @@
 - name: Boot Node
-  vmware_guest_powerstate:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    validate_certs: no
-    folder: "{{ folder }}"
-    moid: "{{ item.name }}"
-    state: powered-on
-  delegate_to: localhost
-  register: deploy
+  command: "/usr/local/bin/govc vm.power -on  {{ item.name }}"
 
 - pause:
     seconds: 30

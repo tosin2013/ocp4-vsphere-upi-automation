@@ -1,5 +1,13 @@
 ---
 - hosts: "{{ hostname }}"
+
+  environment:
+    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
+    GOVC_USERNAME: "{{ vcenter_username }}"
+    GOVC_PASSWORD: "{{ vcenter_password }}"
+    GOVC_URL: "https://{{ vcenter_hostname }}"
+    GOVC_INSECURE: 1
+
   tasks:
   - name: get user home directory
     shell: >
@@ -13,17 +21,8 @@
       folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
       datastore: "{{ vmware_datastore }}"
 
-  - name: Power On Bootstrap Node
-    vmware_guest_powerstate:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vcenter_username }}"
-      password: "{{ vcenter_password }}"
-      validate_certs: no
-      folder: "{{ folder }}"
-      moid: bootstrap
-      state: powered-on
-    delegate_to: localhost
-    register: deploy
+  - name: Power On bootstrap nodes
+    command: "/usr/local/bin/govc vm.power -on  bootstrap"
 
   - pause:
       seconds: 30
