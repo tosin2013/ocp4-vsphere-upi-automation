@@ -1,3 +1,2 @@
-
-#- import_playbook: setup-vcenter-vms.yml
-- import_playbook: setup-vcenter-vms-master.yml
+---
+- import_playbook: setup-vcenter-vms-all.yml

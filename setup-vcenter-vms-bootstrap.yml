@@ -1,42 +1,43 @@
-- name: get master dhcp ignition file
+- name: get append-bootstrap.64 dhcp ignition file
   shell: >
-      cat {{ user_home.stdout }}/install-dir/master.64
+      cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
   changed_when: false
-  register: master64
-  when: not configure_static_ips
+  register: bootstrap64
+  when: configure_static_ips == False
 
-- name: Setting master64 fact
+- name: Setting bootstrap64 fact
   set_fact:
-    master64val: "{{ master64.stdout }}"
+    bootstrap64val: "{{ bootstrap64.stdout }}"
   when: 
     - configure_static_ips == False
-
-- name: get master.64 static ignition file
+    
+- name: get append-bootstrap.64 static ignition file
   shell: >
-        cat {{ user_home.stdout }}/ocp4-utils/configFiles/{{ item.name }}.{{ config.clusterName }}.{{ config.baseDomain }}.64
+      cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
   changed_when: false
-  register: master64static
-  when: configure_static_ips
-
-- name: Setting master64static fact
-  set_fact:
-    master64staticval: "{{ master64static.stdout }}"
+  register: bootstrap64static
   when: 
     - configure_static_ips == True
 
-- name: "Master base64 DHCP base64"
-  debug:
-    msg: "{{ master64val }}"
-  when: 
-    - configure_static_ips == False
-
-- name: "Master base64 static base64"
-  debug:
-    msg: "{{ master64staticval }}"
+- name: Setting bootstrap64static fact
+  set_fact:
+    bootstrap64staticval: "{{ bootstrap64static.stdout }}"
   when: 
     - configure_static_ips == True
 
-- name: Create master VM from the template via DHCP
+- name: "Bootstrap base64 DHCP base64"
+  debug:
+    msg: "{{ bootstrap64val }}"
+  when: 
+    - configure_static_ips == False
+
+- name: "Bootstrap base64 static base64"
+  debug:
+    msg: "{{ bootstrap64staticval }}"
+  when: 
+    - configure_static_ips == True
+
+- name: Create bootstrap VM from the template via DHCP
   vmware_guest:
     hostname: "{{ vcenter_hostname }}"
     username: "{{ vcenter_username }}"
@@ -44,7 +45,7 @@
     datacenter: "{{ vmware_datacenter }}"
     validate_certs: no
     folder: "{{ folder }}"
-    name: master
+    name: bootstrap
     state: poweredoff
     template: "{{ templateName }}"
     disk:
@@ -57,15 +58,15 @@
       memory_reservation_lock: True
     networks:
     - name: "{{ vmware_network }}"
-      mac: "{{ item.macaddr }}"
+      mac: "{{ bootstrap.macaddr }}"
     wait_for_ip_address: no
     customvalues:
       - key: guestinfo.ignition.config.data
-        value: "{{ master64val }}"
+        value: "{{ bootstrap64val }}"
   when: 
     - configure_static_ips == False
 
-- name: Create master VM from the template via Static IP
+- name: Create bootstrap VM from the template via Static IP
   vmware_guest:
     hostname: "{{ vcenter_hostname }}"
     username: "{{ vcenter_username }}"
@@ -73,7 +74,7 @@
     datacenter: "{{ vmware_datacenter }}"
     validate_certs: no
     folder: "{{ folder }}"
-    name: master
+    name: bootstrap
     state: poweredoff
     template: "{{ templateName }}"
     disk:
@@ -86,10 +87,10 @@
       memory_reservation_lock: True
     networks:
     - name: "{{ vmware_network }}"
-      mac: "{{ item.macaddr }}"
+      mac: "{{ bootstrap.macaddr }}"
     wait_for_ip_address: no
     customvalues:
       - key: guestinfo.ignition.config.data
-        value: "{{ master64staticval }}"
+        value: "{{ bootstrap64staticval }}"
   when: 
     - configure_static_ips == True
