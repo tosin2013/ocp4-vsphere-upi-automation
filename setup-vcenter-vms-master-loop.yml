@@ -1,0 +1,13 @@
+- name: get master dhcp ignition file
+  shell: >
+      cat {{ user_home.stdout }}/install-dir/master.64
+  changed_when: false
+  register: master64
+  when: not configure_static_ips
+
+- name: get master.64 static ignition file
+  shell: >
+        cat {{ user_home.stdout }}/ocp4-utils/configFiles/{{ item.name }}.{{ config.clusterName }}.{{ config.baseDomain }}.64
+  changed_when: false
+  register: master64
+  when: configure_static_ips
