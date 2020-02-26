@@ -8,10 +8,10 @@
     register: user_home
   
   - name: "Install pyvmomi using pip3"
-    shell: pip3 install --upgrade pyvmomi
+    shell: pip install --upgrade pyvmomi
 
   - name: "Install requests using pip3"
-    shell: pip3 install --upgrade requests
+    shell: pip install --upgrade requests
 
   - name: Setting facts 
     set_fact:
