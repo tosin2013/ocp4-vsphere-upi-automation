@@ -28,9 +28,9 @@
       seconds: 30
 
   - name: Power On Master Nodes
-    include: boot-coreos-vms-all.yml
+    include: boot-coreos-vms-loop.yml
     loop: "{{ masters }}"
 
   - name: Power On Worker Nodes
-    include: boot-coreos-vms-all.yml
+    include: boot-coreos-vms-loop.yml
     loop: "{{ workers }}"
