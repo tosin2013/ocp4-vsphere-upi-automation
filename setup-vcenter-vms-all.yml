@@ -7,12 +7,13 @@
     changed_when: false
     register: user_home
   
-  - name: "Install pyvmomi using pip3"
+  - name: "Install pyvmomi using pip"
     shell: |
-      yum install python27-python-pip -y
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      python get-pip.py
       pip install --upgrade pyvmomi
 
-  - name: "Install requests using pip3"
+  - name: "Install requests using pip"
     shell: pip install --upgrade requests
 
   - name: Setting facts 
