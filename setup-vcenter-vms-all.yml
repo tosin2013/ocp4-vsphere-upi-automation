@@ -8,7 +8,9 @@
     register: user_home
   
   - name: "Install pyvmomi using pip3"
-    shell: pip install --upgrade pyvmomi
+    shell: |
+      yum install python27-python-pip -y
+      pip install --upgrade pyvmomi
 
   - name: "Install requests using pip3"
     shell: pip install --upgrade requests
