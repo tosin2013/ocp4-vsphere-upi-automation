@@ -44,7 +44,7 @@
     datacenter: "{{ vmware_datacenter }}"
     validate_certs: no
     folder: "{{ folder }}"
-    name: master
+    name: "{{ item.name }}"
     state: poweredoff
     template: "{{ templateName }}"
     disk:
@@ -73,7 +73,7 @@
     datacenter: "{{ vmware_datacenter }}"
     validate_certs: no
     folder: "{{ folder }}"
-    name: master
+    name: "{{ item.name }}"
     state: poweredoff
     template: "{{ templateName }}"
     disk:
