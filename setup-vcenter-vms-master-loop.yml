@@ -15,7 +15,7 @@
   shell: >
         cat {{ user_home.stdout }}/ocp4-utils/configFiles/{{ item.name }}.{{ config.clusterName }}.{{ config.baseDomain }}.64
   changed_when: false
-  register: master64
+  register: master64static
   when: configure_static_ips
 
 - name: Setting master64static fact
