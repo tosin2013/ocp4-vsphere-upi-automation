@@ -7,7 +7,7 @@
     folder: "{{ folder }}"
     moid: "{{ item.name }}"
     state: powered-on
-  delegate_to: localhost
+  delegate_to: "{{ hostname }}"
   register: deploy
 
 - pause:
