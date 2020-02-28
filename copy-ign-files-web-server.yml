@@ -1,5 +1,5 @@
 - hosts: "{{ hostname }}"
-  
+
   tasks:
 
   - name: get user home directory
@@ -10,7 +10,7 @@
 
   - name: Ansible delete /var/www/html/ignition/ files
     find:
-      paths: /var/www/html/ignition/ 
+      paths: /var/www/html/ignition/
       patterns: "*.*"
     register: files_to_delete
     when: clean is defined
@@ -21,6 +21,7 @@
       state: absent
     with_items: "{{ files_to_delete.files }}"
     when: clean is defined
-    
+
   - name: configure web server files
     script: "configure-webserver.sh --some-argument  {{ user_home.stdout }}"
+    ignore_errors: no

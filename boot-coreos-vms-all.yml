@@ -24,8 +24,10 @@
   - name: Power On bootstrap nodes
     command: "/usr/local/bin/govc vm.power -on  bootstrap"
 
-  - pause:
-      seconds: 30
+  - name: "Wait for {{ api_endpoint }}"
+    uri:
+      url: "{{ api_endpoint }}:22623/config/master"
+
 
   - name: Power On Master Nodes
     include: boot-coreos-vms-loop.yml

@@ -1,4 +1,4 @@
-- name: Boot Node
+- name: "Boot {{ item.name }} Node"
   command: "/usr/local/bin/govc vm.power -on  {{ item.name }}"
 
 - pause:
