@@ -15,7 +15,7 @@
     changed_when: false
     register: user_home
 
-  - name: Setting facts 
+  - name: Setting facts
     set_fact:
       templateName : "{{ templateName }}"
       folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
@@ -33,6 +33,6 @@
     include: boot-coreos-vms-loop.yml
     loop: "{{ masters }}"
 
-  - name: Power On Worker Nodes
-    include: boot-coreos-vms-loop.yml
-    loop: "{{ workers }}"
+  #- name: Power On Worker Nodes
+  #  include: boot-coreos-vms-loop.yml
+  #  loop: "{{ workers }}"

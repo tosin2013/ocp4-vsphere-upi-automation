@@ -11,7 +11,7 @@
       path: "/tmp/bootstrap-complete.log"
       search_regex: "Bootstrap status: complete"
       delay: 30
-      timeout: 60
+      timeout: 900
       msg: "DEBUG Bootstrap status: complete "
   - name: Remove /tmp/bootstrap-complete.log
     file:
