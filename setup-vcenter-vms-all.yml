@@ -7,7 +7,7 @@
     changed_when: false
     register: user_home
 
-  - name: Setting facts 
+  - name: Setting facts
     set_fact:
       templateName : "{{ templateName }}"
       folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
