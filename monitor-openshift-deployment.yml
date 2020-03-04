@@ -3,7 +3,7 @@
   tasks:
   - name: Waiting for bootstrap Complete
     shell: >
-            openshift-install --dir=install-dir wait-for bootstrap-complete --log-level debug | tee /tmp/bootstrap-complete.log
+            openshift-install --dir=/root/install-dir wait-for bootstrap-complete --log-level debug | tee /tmp/bootstrap-complete.log
     changed_when: false
   - name: Wait for bootstrap complete to be found in file
     wait_for:
