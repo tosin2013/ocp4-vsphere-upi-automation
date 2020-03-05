@@ -4,6 +4,8 @@
   - name: Waiting for bootstrap Complete
     shell: |
       openshift-install --dir=/root/install-dir wait-for bootstrap-complete --log-level debug 2>&1 | tee /tmp/bootstrap-complete.log &
+    async: 3600
+    poll: 5
     changed_when: false
   - name: Wait for bootstrap complete to be found in file
     wait_for:
