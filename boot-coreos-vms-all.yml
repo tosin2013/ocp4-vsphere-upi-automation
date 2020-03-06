@@ -25,7 +25,7 @@
     command: "/usr/local/bin/govc vm.power -on  bootstrap"
 
   - name: wait_for http
-    command: "curl --silent {{ api_endpoint }}:22623/config/master"
+    command: "curl -k --silent {{ api_endpoint }}:22623/config/master"
     register: result
     until: result.stdout.find("200 OK") != -1
     retries: 100
