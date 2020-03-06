@@ -1,5 +1,9 @@
 ---
 - hosts: "{{ hostname }}"
+
+  environment:
+    KUBECONFIG: /root/install-dir/auth/kubeconfig
+
   tasks:
   - name: Waiting for bootstrap Complete
     shell: |
@@ -18,9 +22,6 @@
     file:
       path: /tmp/bootstrap-complete.log
       state: absent
-
-  - name: Exporting  the kubeadmin credentials
-    command: export KUBECONFIG=/root/install-dir/auth/kubeconfig
 
   - name: Verifying oc commands
     command: oc whoami
