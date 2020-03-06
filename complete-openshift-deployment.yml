@@ -25,3 +25,14 @@
 
   - name: Verifying oc commands
     command: oc whoami
+
+  - name: Get Ready nodes
+    command: oc get nodes
+
+  - name:  Review  and approve the pending certificate signing requests
+    command: "curl -k --silent {{ api_endpoint }}:22623/config/master"
+    register: result
+    until: result.stdout.find("Pending") != -1
+    retries: 100
+    delay: 30
+    changed_when: false
