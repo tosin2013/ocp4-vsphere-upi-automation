@@ -32,13 +32,13 @@
     include: boot-coreos-vms-loop.yml
     loop: "{{ masters }}"
 
-  - name: "Wait for {{ api_endpoint }}"
-    uri:
-      url: "{{ api_endpoint }}:22623/config/master"
+  - name: wait_for http
+    command: "curl -k -I {{ api_endpoint }}:22623/config/master"
     register: result
-    until: "'failed' not in result and result.content.find('OK') != -1"
-    retries: 18
-    delay: 10
+    until: result.stdout.find("200 OK") != -1
+    retries: 100
+    delay: 30
+    changed_when: false
 
   - name: Power On Worker Nodes
     include: boot-coreos-vms-loop.yml
