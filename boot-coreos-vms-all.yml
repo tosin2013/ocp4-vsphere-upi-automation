@@ -24,8 +24,9 @@
   - name: Power On bootstrap nodes
     command: "/usr/local/bin/govc vm.power -on  bootstrap"
 
-  - pause:
-    seconds: 45
+  - name: pause for 45 seconds
+    pause:
+      seconds: 45
 
   - name: Power On Master Nodes
     include: boot-coreos-vms-loop.yml
