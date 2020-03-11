@@ -15,7 +15,7 @@
     copy:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      checksum: openshift_tgz.stat.exists.checksum
+      checksum: "{{ openshift_tgz.stat.exists.checksum }}"
     when: openshift_tgz.stat.exists == true
 
   - name: "Get remote tgz file sha information"
