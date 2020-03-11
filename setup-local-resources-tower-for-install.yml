@@ -1,7 +1,7 @@
 - hosts: "{{ hostname }}"
 
   environment:
-    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin:{{ ansible_env.PATH }}"
 
   tasks:
 
@@ -42,6 +42,7 @@
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/patches"
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh"
+      - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin"
 
   - name: Generate a SSH key-pair
     openssh_keypair:
@@ -71,6 +72,29 @@
     file:
       path: "/usr/local/bin/govc"
       mode: '775'
+  - name: Download the oc client
+    get_url:
+      url: "{{ download.openshiftClient }}"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/oc_client.tar.gz"
+      validate_certs: no
+
+  - name: Download the openshift-install
+    get_url:
+      url: "{{ download.openshiftInstall }}"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/openshift_install.tar.gz"
+      validate_certs: no
+
+  - name: Unarchive oc client
+    unarchive:
+      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/oc_client.tar.gz"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin"
+      remote_src: yes
+
+  - name: Unarchive openshift-install
+    unarchive:
+      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/openshift_install.tar.gz"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin"
+      remote_src: yes
 
   - name: Copy install-config.yaml file into install-dir
     template:
@@ -81,7 +105,7 @@
     command: cp {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir/install-config.yaml {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir/install-config.yaml.orig
 
   - name: Generate the ignition manifests
-    command: "/usr/local/bin/openshift-install create manifests --dir={{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
+    command: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin/openshift-install create manifests --dir={{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
 
   - name: Copy cluster scheduler path to machine
     copy:
@@ -93,7 +117,7 @@
       patch < {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/patches/cluster-scheduler-02-config.yml.patch {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir/manifests/cluster-scheduler-02-config.yml
 
   - name: Generate the ignition configs
-    command: "/usr/local/bin/openshift-install create ignition-configs --dir={{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
+    command: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin/openshift-install create ignition-configs --dir={{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
 
   - name: Copy append-bootstrap.ign file into install-dir
     template:
