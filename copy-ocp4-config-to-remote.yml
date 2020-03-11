@@ -33,7 +33,7 @@
   - name: Extract foo.tgz into /root/
     unarchive:
       src:  "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      dest: {{ user_home.stdout }}/
+      dest: "{{ user_home.stdout }}"
     when:  remote_tgz.stat.exists.checksum ==  openshift_tgz.stat.exists.checksum
 
   - name: Remove tar file
