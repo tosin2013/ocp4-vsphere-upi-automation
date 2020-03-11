@@ -56,8 +56,8 @@
 
   - name: set sshKey
     set_fact:
-     sshKey: "{{ sshkeyData.stdout }}"
-     
+      sshKey: "{{ sshkeyData.stdout }}"
+
   - name: Download govc
     get_url:
       url: "{{ download.govc}}"
