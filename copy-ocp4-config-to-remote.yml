@@ -12,5 +12,7 @@
   - name: Sync openshift tgz file
     synchronize:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      dest: "{{ target_host }}/tmp/"
+      dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      mode: push
+    delegate_to: "{{ target_host }}"
     when: openshift_tgz.stat.exists == true
