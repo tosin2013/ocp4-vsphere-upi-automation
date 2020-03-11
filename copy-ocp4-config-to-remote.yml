@@ -15,5 +15,5 @@
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       mode: push
-    delegate_to: "{{ target_host }}"
+    delegate_to: localhost
     when: openshift_tgz.stat.exists == true
