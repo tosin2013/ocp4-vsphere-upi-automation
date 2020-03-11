@@ -10,10 +10,13 @@
     delegate_to: localhost
     register: openshift_tgz
 
+
   - name: Sync openshift tgz file
     synchronize:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       mode: push
+      rsync_path: "sudo rsync"  # Use sudo on the remote system
+    recursive: true
     delegate_to: localhost
     when: openshift_tgz.stat.exists == true
