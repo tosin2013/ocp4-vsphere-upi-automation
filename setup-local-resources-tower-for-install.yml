@@ -37,7 +37,11 @@
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: directory
       mode: '0755'
-    with_items: ["downloads", "install-dir", "patches", ".ssh"]
+    with_items: "{{ item }}"
+      - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads"
+      - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
+      - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/patches"
+      - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh"
 
   - name: Generate a SSH key-pair
     openssh_keypair:
