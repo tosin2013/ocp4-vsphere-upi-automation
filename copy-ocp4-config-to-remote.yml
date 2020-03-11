@@ -18,5 +18,6 @@
       mode: push
       recursive: true
       set_remote_user: false
+      use_ssh_args: yes
     delegate_to: localhost
     when: openshift_tgz.stat.exists == true
