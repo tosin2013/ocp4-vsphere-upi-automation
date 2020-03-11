@@ -1,0 +1,148 @@
+- hosts: "{{ hostname }}"
+
+  environment:
+    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
+
+  tasks:
+
+  - name: Install the necessary linux packages which will be needed later in the ansible run
+    yum:
+      name:
+        - patch
+        - gzip
+        - python3
+        - python3-pip
+    become: true
+
+  - name: "Install pyvmomi using pip3"
+    shell: pip3 install --upgrade pyvmomi
+
+  - name: "Install requests using pip3"
+    shell: pip3 install --upgrade requests
+
+  - name: create working directory
+    file:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      state: directory
+
+
+  - name: Generate a SSH key-pair
+    openssh_keypair:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4"
+      force: false
+
+  - name: get public key for install-config.yaml
+    shell: >
+            cat {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4.pub
+    changed_when: false
+    register: sshkeyData
+
+  - name: set sshKey
+    set_fact:
+     sshKey: "{{ sshkeyData.stdout }}"
+
+  - name: Clean up existing bin, install-dir and downloads folders
+    file:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      state: absent
+    with_items: ["downloads", "install-dir", "patches", "ocp4-utils"]
+    when: clean is defined
+
+  - name: Create install-dir, downloads and patches directories
+    file:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      state: directory
+      mode: '0755'
+    with_items: ["downloads", "install-dir", "patches"]
+
+  - name: Download govc
+    get_url:
+      url: "{{ download.govc}}"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/govc.gz"
+      validate_certs: no
+
+  - name: Unarchive govc
+    shell: gzip -dc "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/govc.gz" > "/usr/local/bin/govc"
+
+  - name: Make govc executable
+    file:
+      path: "/usr/local/bin/govc"
+      mode: '775'
+
+  - name: Copy install-config.yaml file into install-dir
+    template:
+      src: "templates/install-config.yaml.j2"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir/install-config.yaml"
+
+  - name: Backup the install-config.yaml file
+    command: cp {{ working_dir }}/install-dir/install-config.yaml {{ working_dir }}/install-dir/install-config.yaml.orig
+
+  - name: Generate the ignition manifests
+    command: "/usr/local/bin/openshift-install create manifests --dir={{ working_dir }}/install-dir"
+
+  - name: Copy cluster scheduler path to machine
+    copy:
+      src: patches/cluster-scheduler-02-config.yml.patch
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/patches/cluster-scheduler-02-config.yml.patch"
+
+  - name: Apply the patch to set mastersSchedulable to false
+    shell: |
+      patch < {{ working_dir }}/patches/cluster-scheduler-02-config.yml.patch {{ working_dir }}/install-dir/manifests/cluster-scheduler-02-config.yml
+
+  - name: Generate the ignition configs
+    command: "/usr/local/bin/openshift-install create ignition-configs --dir={{ working_dir }}/install-dir"
+
+  - name: Copy append-bootstrap.ign file into install-dir
+    template:
+      src: "templates/append-bootstrap.ign.j2"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir/append-bootstrap.ign"
+
+  - name: Get base64 version of append-bootstrap.ign
+    shell: "base64 -w0 {{ working_dir }}/install-dir/append-bootstrap.ign > {{ working_dir }}/install-dir/append-bootstrap.64"
+
+  - name: Get base64 version of master.ign
+    shell: "base64 -w0 {{ working_dir }}/install-dir/master.ign > {{ working_dir }}/install-dir/master.64"
+
+  - name: Get base64 version of worker.ign
+    shell: "base64 -w0 {{ working_dir }}/install-dir/worker.ign > {{ working_dir }}/install-dir/worker.64"
+
+  - name: Copy vra.json for thin provisioing
+    copy:
+      src: "vra.json"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/vra.json"
+
+  - name: Copy configure-webserver.sh for webserver configuration
+    copy:
+      src: "configure-webserver.sh"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/configure-webserver.sh"
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Cloning  ocp4-utils repo
+    git:
+      repo: https://github.com/tosin2013/ocp4-utils.git
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/ocp4-utils"
+    when: configure_static_ips
+
+  - name: Copy data.yaml file into ocp4-utils
+    template:
+      src: "templates/data.yaml.j2"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/ocp4-utils/data.yaml"
+    when: configure_static_ips
+
+  - name: Prepare ocp4-utils
+    shell: |
+      cd {{ working_dir }}/ocp4-utils/
+      pip3 install -r requirements.txt
+      pip3 install pathlib
+    when: configure_static_ips
+
+  - name: Configure static ips
+    shell: cd {{ working_dir }}/ocp4-utils/ && python3 {{ working_dir }}/ocp4-utils/prepare.py
+    when: configure_static_ips
+
+  - name: Compress directory working directory
+    archive:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      dest: ""{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.tgz"
