@@ -1,13 +1,13 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: image-registry-storage
+  name: image-registry-pvc
   namespace: openshift-image-registry
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
-  storageClassName: nfs
+      storage: ""{{ nfs_size }}""
+  storageClassName: nfs-storage-provisioner
   volumeMode: Filesystem

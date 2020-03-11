@@ -145,4 +145,4 @@
   - name: Compress directory working directory
     archive:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
-      dest: ""{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.tgz"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.tgz"
