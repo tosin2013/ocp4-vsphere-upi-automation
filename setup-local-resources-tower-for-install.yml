@@ -34,10 +34,10 @@
 
   - name: Create install-dir, downloads and patches directories
     file:
-      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      path: "{{ item }}"
       state: directory
       mode: '0755'
-    with_items: "{{ item }}"
+    with_items:
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads"
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/install-dir"
       - "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/patches"
