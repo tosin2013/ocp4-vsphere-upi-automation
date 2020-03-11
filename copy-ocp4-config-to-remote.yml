@@ -15,7 +15,7 @@
     copy:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      checksum: "{{ openshift_tgz.stat.exists.checksum }}"
+      checksum: "{{ openshift_tgz.stat.checksum }}"
     when: openshift_tgz.stat.exists == true
 
   - name: "Get remote tgz file sha information"
@@ -34,7 +34,7 @@
     unarchive:
       src:  "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "{{ user_home.stdout }}"
-    when:  remote_tgz.stat.exists.checksum ==  openshift_tgz.stat.exists.checksum
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Remove tar file
     file:
