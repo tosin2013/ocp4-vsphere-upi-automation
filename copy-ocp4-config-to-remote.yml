@@ -16,7 +16,6 @@
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       mode: push
-      rsync_path: "sudo rsync"  # Use sudo on the remote system
       recursive: true
       set_remote_user: false
     delegate_to: localhost
