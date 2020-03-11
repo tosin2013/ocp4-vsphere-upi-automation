@@ -48,16 +48,16 @@
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4"
       force: false
 
-  - name: set sshKey
-    set_fact:
-     sshKey: "{{ sshkeyData.stdout }}"
-
   - name: get public key for install-config.yaml
     shell: >
             cat {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4.pub
     changed_when: false
     register: sshkeyData
 
+  - name: set sshKey
+    set_fact:
+     sshKey: "{{ sshkeyData.stdout }}"
+     
   - name: Download govc
     get_url:
       url: "{{ download.govc}}"
