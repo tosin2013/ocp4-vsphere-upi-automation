@@ -18,5 +18,6 @@
       mode: push
       rsync_path: "sudo rsync"  # Use sudo on the remote system
       recursive: true
+      set_remote_user: "{{ remote_user }}"
     delegate_to: localhost
     when: openshift_tgz.stat.exists == true
