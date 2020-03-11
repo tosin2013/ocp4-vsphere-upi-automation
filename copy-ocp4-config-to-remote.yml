@@ -31,9 +31,7 @@
     register: user_home
 
   - name: Extract tar file  into /root/
-    unarchive:
-      src:  "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      dest: "{{ user_home.stdout }}"
+    command: tar -zxvf /tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz -C  "{{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }}"
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Remove tar file
