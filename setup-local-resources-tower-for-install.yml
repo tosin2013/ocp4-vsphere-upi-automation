@@ -162,6 +162,7 @@
       cd {{ working_dir }}/ocp4-utils/
       pip3 install -r requirements.txt
       pip3 install pathlib
+      pip3 install jinja2
     when: configure_static_ips
 
   - name: Configure static ips
