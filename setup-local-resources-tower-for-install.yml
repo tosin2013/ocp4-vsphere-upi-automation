@@ -25,6 +25,10 @@
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: directory
 
+  - name: create working directory
+    file:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh"
+      state: directory
 
   - name: Generate a SSH key-pair
     openssh_keypair:
