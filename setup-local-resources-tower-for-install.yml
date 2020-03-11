@@ -20,21 +20,21 @@
   - name: "Install requests using pip3"
     shell: pip3 install --upgrade requests
 
+  - name: Clean up existing bin, install-dir and downloads folders
+    file:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      state: absent
+    with_items: ["downloads", "install-dir", "patches", "ocp4-utils",".ssh"]
+    when: clean is defined
+
   - name: create working directory
     file:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: directory
 
-  - name: Clean up existing bin, install-dir and downloads folders
-    file:
-      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
-      state: absent
-    with_items: ["downloads", "install-dir", "patches", "ocp4-utils"]
-    when: clean is defined
-
   - name: Create install-dir, downloads and patches directories
     file:
-      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/"
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: directory
       mode: '0755'
     with_items: ["downloads", "install-dir", "patches", ".ssh"]
@@ -47,7 +47,7 @@
   - name: set sshKey
     set_fact:
      sshKey: "{{ sshkeyData.stdout }}"
-     
+
   - name: get public key for install-config.yaml
     shell: >
             cat {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4.pub
