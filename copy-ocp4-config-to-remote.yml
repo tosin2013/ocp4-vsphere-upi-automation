@@ -1,0 +1,15 @@
+- hosts: all
+
+  environment:
+    PATH: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin:{{ ansible_env.PATH }}"
+
+  tasks:
+  - name: check for openshift tgz file
+    stat:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+    register: openshift_tgz
+
+  - name: Sync openshift tgz file
+    synchronize:
+      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      dest: "rsync://{{ target_host }}/tmp/"
