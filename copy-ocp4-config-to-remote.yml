@@ -17,7 +17,7 @@
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       mode: push
       recursive: true
-      set_remote_user: false
+      set_remote_user: true
       use_ssh_args: yes
     delegate_to: localhost
     when: openshift_tgz.stat.exists == true
