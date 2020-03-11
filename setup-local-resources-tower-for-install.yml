@@ -25,10 +25,6 @@
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: directory
 
-  - name: set sshKey
-    set_fact:
-     sshKey: "{{ sshkeyData.stdout }}"
-
   - name: Clean up existing bin, install-dir and downloads folders
     file:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
@@ -41,24 +37,23 @@
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/"
       state: directory
       mode: '0755'
-    with_items: ["downloads", "install-dir", "patches"]
-
-  - name: create working directory
-    file:
-      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh"
-      state: directory
+    with_items: ["downloads", "install-dir", "patches", ".ssh"]
 
   - name: Generate a SSH key-pair
     openssh_keypair:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4"
       force: false
 
+  - name: set sshKey
+    set_fact:
+     sshKey: "{{ sshkeyData.stdout }}"
+     
   - name: get public key for install-config.yaml
     shell: >
             cat {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/.ssh/ocp4.pub
     changed_when: false
     register: sshkeyData
-    
+
   - name: Download govc
     get_url:
       url: "{{ download.govc}}"
