@@ -7,23 +7,36 @@
   - name: check for openshift tgz file
     stat:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum_algorithm: sha1
     delegate_to: localhost
     register: openshift_tgz
 
-  - name: Copy file with owner and permission, using symbolic representation
+  - name: Copy openshift tgz file
     copy:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      checksum: 4c196953355dcc3968224eba71e15e9a578c3f39
+      checksum: openshift_tgz.stat.exists.checksum
     when: openshift_tgz.stat.exists == true
 
-  - name: Sync openshift tgz file
-    synchronize:
-      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      mode: push
-      recursive: true
-      set_remote_user: true
-      use_ssh_args: yes
-    delegate_to: localhost
-    when: openshift_tgz.stat.exists == true
+  - name: "Get remote tgz file sha information"
+    stat:
+      path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum_algorithm: sha1
+    register: remote_tgz
+
+  - name: get user home directory
+    shell: >
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
+
+  - name: Extract foo.tgz into /root/
+    unarchive:
+      src:  "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      dest: {{ user_home.stdout }}/
+    when:  remote_tgz.stat.exists.checksum ==  openshift_tgz.stat.exists.checksum
+
+  - name: Remove tar file
+    file:
+      path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      state: absent
