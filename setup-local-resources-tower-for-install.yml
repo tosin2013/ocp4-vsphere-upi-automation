@@ -20,11 +20,10 @@
   - name: "Install requests using pip3"
     shell: pip3 install --upgrade requests
 
-  - name: Clean up existing bin, install-dir and downloads folders
+  - name: Clean up working directory
     file:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       state: absent
-    with_items: ["downloads", "install-dir", "patches", "ocp4-utils",".ssh"]
     when: clean is defined
 
   - name: create working directory
@@ -166,7 +165,7 @@
     when: configure_static_ips
 
   - name: Configure static ips
-    shell: cd {{ working_dir }}/ocp4-utils/ && python3 {{ working_dir }}/ocp4-utils/prepare.py
+    shell: cd {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/ocp4-utils/ && python3 {{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/ocp4-utils/prepare.py
     when: configure_static_ips
 
   - name: Compress directory working directory
