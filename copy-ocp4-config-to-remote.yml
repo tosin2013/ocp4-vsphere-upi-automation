@@ -10,12 +10,12 @@
     delegate_to: localhost
     register: openshift_tgz
 
-- name: Copy file with owner and permission, using symbolic representation
-  copy:
-    src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    checksum: 4c196953355dcc3968224eba71e15e9a578c3f39
-  when: openshift_tgz.stat.exists == true
+  - name: Copy file with owner and permission, using symbolic representation
+    copy:
+      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum: 4c196953355dcc3968224eba71e15e9a578c3f39
+    when: openshift_tgz.stat.exists == true
 
   - name: Sync openshift tgz file
     synchronize:
