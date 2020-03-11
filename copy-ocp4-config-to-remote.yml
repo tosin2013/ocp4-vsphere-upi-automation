@@ -30,13 +30,15 @@
     changed_when: false
     register: user_home
 
-  - name: Extract foo.tgz into /root/
+  - name: Extract tar file  into /root/
     unarchive:
       src:  "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "{{ user_home.stdout }}"
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+    delegate_to: all
 
   - name: Remove tar file
     file:
       path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       state: absent
+    delegate_to: all
