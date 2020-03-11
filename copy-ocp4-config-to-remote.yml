@@ -17,6 +17,6 @@
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       mode: push
       rsync_path: "sudo rsync"  # Use sudo on the remote system
-    recursive: true
+      recursive: true
     delegate_to: localhost
     when: openshift_tgz.stat.exists == true
