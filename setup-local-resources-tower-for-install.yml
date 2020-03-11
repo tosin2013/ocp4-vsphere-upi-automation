@@ -65,11 +65,11 @@
       validate_certs: no
 
   - name: Unarchive govc
-    shell: gzip -dc "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/govc.gz" > "/usr/local/bin/govc"
+    shell: gzip -dc "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/downloads/govc.gz" > "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin/govc"
 
   - name: Make govc executable
     file:
-      path: "/usr/local/bin/govc"
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin/govc"
       mode: '775'
   - name: Download the oc client
     get_url:
@@ -173,4 +173,4 @@
   - name: Compress directory working directory
     archive:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
-      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
