@@ -36,7 +36,7 @@
 
   - name: Move Extracted Files to root directory
     shell: |
-      cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}"
+      cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
 
