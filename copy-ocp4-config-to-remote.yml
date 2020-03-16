@@ -35,7 +35,7 @@
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Move Extracted Files to root directory
-    command: mv {{ config.clusterName }}.{{ config.baseDomain }} ../
+    command: mv {{ config.clusterName }}.{{ config.baseDomain }}/* "{{ user_home.stdout }}"
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
 
