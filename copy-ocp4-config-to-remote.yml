@@ -34,6 +34,11 @@
     command: tar -zxvf /tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz -C  "{{ user_home.stdout }}"
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
+  - name: Move Extracted Files to root directory
+    command: mv {{ config.clusterName }}.{{ config.baseDomain }} ../
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+
+
   - name: Remove tar file
     file:
       path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
