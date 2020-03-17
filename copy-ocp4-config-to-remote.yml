@@ -32,10 +32,11 @@
     with_items:
       - "{{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }}"
       - "{{ user_home.stdout }}/downloads"
-      - "{{ user_home.stdout }}install-dir"
+      - "{{ user_home.stdout }}/install-dir"
       - "{{ user_home.stdout }}/patches"
       - "{{ user_home.stdout }}/.ssh"
       - "{{ user_home.stdout }}/bin"
+      - "{{ user_home.stdout }}/ocp4-utils"
     when: clean is defined
 
   - name: check for openshift tgz file
