@@ -1,19 +1,6 @@
 ---
 - hosts: "{{ hostname }}"
   tasks:
-  - name: Install the necessary linux packages which will be needed later in the ansible run
-    yum:
-      name:
-        - python3
-        - python3-pip
-    become: true
-
-  - name: "Install pyvmomi using pip3"
-    shell: pip3 install --upgrade pyvmomi
-
-  - name: "Install requests using pip3"
-    shell: pip3 install --upgrade requests
-
   - name: get user home directory
     shell: >
             getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
