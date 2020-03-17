@@ -54,6 +54,11 @@
       cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
+  - name: Copy all binary files to bin
+    shell: |
+      cd {{ user_home.stdout }}/bin && cp !(*.md) /usr/local/bin/
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+
   - name: Remove tar file
     file:
       path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
