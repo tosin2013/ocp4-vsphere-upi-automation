@@ -56,7 +56,9 @@
 
   - name: Copy all binary files to bin
     shell: |
-      cd {{ user_home.stdout }}/bin && cp !(*.md) /usr/local/bin/
+      #!/bin/bash
+      cd {{ user_home.stdout }}/bin
+      cp !(*.md) /usr/local/bin/
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Remove tar file
