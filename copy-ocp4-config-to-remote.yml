@@ -4,6 +4,21 @@
     PATH: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin:{{ ansible_env.PATH }}"
 
   tasks:
+  - name: Install the necessary linux packages which will be needed later in the ansible run
+    yum:
+      name:
+        - patch
+        - gzip
+        - python3
+        - python3-pip
+    become: true
+
+  - name: "Install pyvmomi using pip3"
+    shell: pip3 install --upgrade pyvmomi
+
+  - name: "Install requests using pip3"
+    shell: pip3 install --upgrade requests
+
   - name: check for openshift tgz file
     stat:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
@@ -38,7 +53,6 @@
     shell: |
       cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
     when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
-
 
   - name: Remove tar file
     file:
