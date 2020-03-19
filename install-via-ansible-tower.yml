@@ -1,3 +1,4 @@
 ---
 - import_playbook: setup-local-resources-tower-for-install.yml
 - import_playbook: create-vcenter-folder.yml
+- import_playbook: copy-ocp4-config-to-remote.yml
