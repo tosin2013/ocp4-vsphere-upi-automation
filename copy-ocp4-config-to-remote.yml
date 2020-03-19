@@ -1,96 +1,102 @@
-- name: Install the necessary linux packages which will be needed later in the ansible run
-  yum:
-    name:
-      - patch
-      - gzip
-      - python3
-      - python3-pip
-  become: true
+- hosts: all
 
-- name: "Install pyvmomi using pip3"
-  shell: pip3 install --upgrade pyvmomi
+  environment:
+    PATH: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin:{{ ansible_env.PATH }}"
 
-- name: "Install requests using pip3"
-  shell: pip3 install --upgrade requests
+  tasks:
+  - name: Install the necessary linux packages which will be needed later in the ansible run
+    yum:
+      name:
+        - patch
+        - gzip
+        - python3
+        - python3-pip
+    become: true
 
-- name: get user home directory
-  shell: >
-          getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
-  changed_when: false
-  register: user_home
+  - name: "Install pyvmomi using pip3"
+    shell: pip3 install --upgrade pyvmomi
 
-- name: Remove install-dir, downloads and patches directories and related directories
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }}"
-    - "{{ user_home.stdout }}/downloads"
-    - "{{ user_home.stdout }}/install-dir"
-    - "{{ user_home.stdout }}/patches"
-    - "{{ user_home.stdout }}/.ssh"
-    - "{{ user_home.stdout }}/bin"
-    - "{{ user_home.stdout }}/ocp4-utils"
-  when: clean is defined
+  - name: "Install requests using pip3"
+    shell: pip3 install --upgrade requests
 
-- name: check for openshift tgz file
-  stat:
-    path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    checksum_algorithm: sha1
-  delegate_to: localhost
-  register: openshift_tgz
+  - name: get user home directory
+    shell: >
+            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+    changed_when: false
+    register: user_home
 
-- name: Copy openshift tgz file
-  copy:
-    src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    checksum: "{{ openshift_tgz.stat.checksum }}"
-  when: openshift_tgz.stat.exists == true
+  - name: Remove install-dir, downloads and patches directories and related directories
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - "{{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }}"
+      - "{{ user_home.stdout }}/downloads"
+      - "{{ user_home.stdout }}/install-dir"
+      - "{{ user_home.stdout }}/patches"
+      - "{{ user_home.stdout }}/.ssh"
+      - "{{ user_home.stdout }}/bin"
+      - "{{ user_home.stdout }}/ocp4-utils"
+    when: clean is defined
 
-- name: "Get remote tgz file sha information"
-  stat:
-    path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    checksum_algorithm: sha1
-  register: remote_tgz
+  - name: check for openshift tgz file
+    stat:
+      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum_algorithm: sha1
+    delegate_to: localhost
+    register: openshift_tgz
+
+  - name: Copy openshift tgz file
+    copy:
+      src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum: "{{ openshift_tgz.stat.checksum }}"
+    when: openshift_tgz.stat.exists == true
+
+  - name: "Get remote tgz file sha information"
+    stat:
+      path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      checksum_algorithm: sha1
+    register: remote_tgz
 
 
 
-- name: Extract tar file  into /root/
-  command: tar -zxvf /tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz -C  "{{ user_home.stdout }}"
-  when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+  - name: Extract tar file  into /root/
+    command: tar -zxvf /tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz -C  "{{ user_home.stdout }}"
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
-- name: Move Extracted Files to root directory
-  shell: |
-    cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
-  when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+  - name: Move Extracted Files to root directory
+    shell: |
+      cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
-- name: Copy all binary files to bin
-  shell: |
-    #!/bin/bash
-    cd {{ user_home.stdout }}/bin
-    rm README.md
-    cp * /usr/local/bin/
-  when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+  - name: Copy all binary files to bin
+    shell: |
+      #!/bin/bash
+      cd {{ user_home.stdout }}/bin
+      rm README.md
+      cp * /usr/local/bin/
+    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
-- name: Check if template is already created
-  shell: "/usr/local/bin/govc  vm.info -k $(echo {{templateName}}.ova | sed -e 's/.ova//')"
-  register: template_created
+  - name: Check if template is already created
+    shell: "/usr/local/bin/govc  vm.info -k $(echo {{templateName}}.ova | sed -e 's/.ova//')"
+    register: template_created
 
-- name: Import the OVA file into the folder in vCenter
-  command: "/usr/local/bin/govc import.ova -options={{ user_home.stdout }}/vra.json -folder={{ folder }} -name={{ templateName }} -ds={{ vmware_datastore }} {{ user_home.stdout }}/downloads/{{templateName}}.ova  "
-  when: template_created.stdout == ""
+  - name: Import the OVA file into the folder in vCenter
+    command: "/usr/local/bin/govc import.ova -options={{ user_home.stdout }}/vra.json -folder={{ folder }} -name={{ templateName }} -ds={{ vmware_datastore }} {{ user_home.stdout }}/downloads/{{templateName}}.ova  "
+    when: template_created.stdout == ""
 
-- name: Remove the Network Adapter
-  command: "/usr/local/bin/govc device.remove -vm {{ folder }}/{{ templateName }} ethernet-0"
-  when: template_created.stdout == ""
+  - name: Remove the Network Adapter
+    command: "/usr/local/bin/govc device.remove -vm {{ folder }}/{{ templateName }} ethernet-0"
+    when: template_created.stdout == ""
 
-- name: Update VM options on the template
-  command: "/usr/local/bin/govc vm.change -vm {{ folder }}/{{ templateName }} -latency high -e=disk.EnableUUID=TRUE -e=guestinfo.ignition.config.data.encoding=base64 -e=guestinfo.ignition.config.data=blah"
-  when: template_created.stdout == ""
+  - name: Update VM options on the template
+    command: "/usr/local/bin/govc vm.change -vm {{ folder }}/{{ templateName }} -latency high -e=disk.EnableUUID=TRUE -e=guestinfo.ignition.config.data.encoding=base64 -e=guestinfo.ignition.config.data=blah"
+    when: template_created.stdout == ""
 
-- name: Remove tar file
-  file:
-    path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-    state: absent
+  - name: Remove tar file
+    file:
+      path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      state: absent
 
-- import_playbook: copy-ign-files-web-server.yml
+  - import_playbook: copy-ign-files-web-server.yml
