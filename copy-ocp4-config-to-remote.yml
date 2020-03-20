@@ -41,9 +41,8 @@
 
   - name: check for openshift tgz file
     stat:
-      path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
+      path: "tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       checksum_algorithm: sha1
-    delegate_to: localhost
     register: openshift_tgz
 
   - name: Copy openshift tgz file
