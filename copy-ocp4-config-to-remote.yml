@@ -43,7 +43,7 @@
       - "{{ user_home.stdout }}/ocp4-utils"
     when: clean is defined
 
-  - name: Synchronization of src on the control machine to dest on the remote hosts
+  - name: "Synchronization of src {{ config.clusterName }}.{{ config.baseDomain }}.tgz to helpernode"
     synchronize:
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
