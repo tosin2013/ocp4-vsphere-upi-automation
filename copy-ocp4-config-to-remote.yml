@@ -65,7 +65,7 @@
   - name: Copy .ssh folder
     shell: |
       #!/bin/bash
-      cd {{ user_home.stdout }}
+      cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }}
       mv .ssh {{ user_home.stdout }}
 
   - name: Check if template is already created
