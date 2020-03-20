@@ -98,5 +98,3 @@
     file:
       path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       state: absent
-
-  - import_playbook: copy-ign-files-web-server.yml
