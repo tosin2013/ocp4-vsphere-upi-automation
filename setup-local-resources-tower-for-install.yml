@@ -95,6 +95,25 @@
       dest: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin"
       remote_src: yes
 
+  - name: Download the ova file
+    get_url:
+      url: "{{ download.ova }}"
+      dest: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
+      validate_certs: no
+    when: vcenter_preqs_met is not defined
+
+  - name: "check if {{templateName}}.ova exists"
+    stat:
+      path: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
+    register: ova_file
+
+  - name: "Get  {{ download.ova }} sha information"
+    stat:
+      path: "{{ user_home.stdout }}/downloads/{{templateName}}.ova"
+      checksum_algorithm: sha256
+    register: ova_name_sha
+    when:  ova_file.stat.exists == True
+
   - name: Copy install-config.yaml file into install-dir
     template:
       src: "templates/install-config.yaml.j2"
