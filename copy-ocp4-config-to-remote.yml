@@ -2,6 +2,10 @@
 
   environment:
     PATH: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/bin:{{ ansible_env.PATH }}"
+    GOVC_USERNAME: "{{ vcenter_username }}"
+    GOVC_PASSWORD: "{{ vcenter_password }}"
+    GOVC_URL: "https://{{ vcenter_hostname }}"
+    GOVC_INSECURE: 1
 
   tasks:
   - name: Install the necessary linux packages which will be needed later in the ansible run
