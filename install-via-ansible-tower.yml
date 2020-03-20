@@ -1,5 +1,5 @@
 ---
-- import_playbook: create-vcenter-folder.yml
 - import_playbook: copy-ocp4-config-to-remote.yml
+- import_playbook: create-vcenter-folder.yml
 - import_playbook: setup-vcenter-for-install.yml
 - import_playbook: copy-ign-files-web-server.yml
