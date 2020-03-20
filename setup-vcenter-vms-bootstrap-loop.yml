@@ -58,7 +58,6 @@
       memory_reservation_lock: True
     networks:
     - name: "{{ vmware_network }}"
-      mac: "{{ bootstrap.macaddr }}"
     wait_for_ip_address: no
     customvalues:
       - key: guestinfo.ignition.config.data
@@ -87,7 +86,6 @@
       memory_reservation_lock: True
     networks:
     - name: "{{ vmware_network }}"
-      mac: "{{ bootstrap.macaddr }}"
     wait_for_ip_address: no
     customvalues:
       - key: guestinfo.ignition.config.data
