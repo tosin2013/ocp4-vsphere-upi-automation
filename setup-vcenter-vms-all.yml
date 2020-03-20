@@ -29,11 +29,14 @@
 
   - name: Deploy Bootstrap Node
     include: setup-vcenter-vms-bootstrap-loop.yml
+    when: use_custom_mac == False
 
   - name: Deploy Master Nodes
     include: setup-vcenter-vms-master-loop.yml
     loop: "{{ masters }}"
+    when: use_custom_mac == False
 
   - name: Deploy Worker Nodes
     include: setup-vcenter-vms-worker-loop.yml
     loop: "{{ workers }}"
+    when: use_custom_mac == False
