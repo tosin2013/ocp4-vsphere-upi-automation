@@ -1,4 +1,10 @@
 ---
+- hosts: all
+
+  environment:
+    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
+
+  tasks:
 - name: 'Wait until success'
   block:
     - name: Set the retry count
