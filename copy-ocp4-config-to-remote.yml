@@ -62,6 +62,12 @@
       rm README.md
       cp * /usr/local/bin/
 
+  - name: Copy .ssh folder
+    shell: |
+      #!/bin/bash
+      cd {{ user_home.stdout }}
+      mv .ssh {{ user_home.stdout }}
+
   - name: Check if template is already created
     shell: "/usr/local/bin/govc  vm.info -k $(echo {{templateName}}.ova | sed -e 's/.ova//')"
     register: template_created
