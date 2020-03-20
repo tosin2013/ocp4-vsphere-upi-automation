@@ -50,24 +50,14 @@
       src: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       dest: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
       checksum: "{{ openshift_tgz.stat.checksum }}"
-    when: openshift_tgz.stat.exists == true
-
-  - name: "Get remote tgz file sha information"
-    stat:
-      path: "/tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz"
-      checksum_algorithm: sha1
-    register: remote_tgz
-
-
+    when: openshift_tgz.stat.exists == false
 
   - name: Extract tar file  into /root/
     command: tar -zxvf /tmp/{{ config.clusterName }}.{{ config.baseDomain }}.tgz -C  "{{ user_home.stdout }}"
-    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Move Extracted Files to root directory
     shell: |
       cd {{ user_home.stdout }}/{{ config.clusterName }}.{{ config.baseDomain }} && mv * {{ user_home.stdout }}
-    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
 
   - name: Copy all binary files to bin
     shell: |
@@ -75,7 +65,7 @@
       cd {{ user_home.stdout }}/bin
       rm README.md
       cp * /usr/local/bin/
-    when:  remote_tgz.stat.checksum ==  openshift_tgz.stat.checksum
+    when:  remote_tgz_checksum ==  openshift_tgz.stat.checksum
 
   - name: Check if template is already created
     shell: "/usr/local/bin/govc  vm.info -k $(echo {{templateName}}.ova | sed -e 's/.ova//')"
