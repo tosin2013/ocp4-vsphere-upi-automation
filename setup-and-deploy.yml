@@ -1,3 +1,14 @@
 ---
-- import_playbook: setup-vcenter-vms-all.yml
-- import_playbook: boot-coreos-vms-all.yml
+  - name: 'Wait until success'
+    block:
+      - name: Set the retry count
+        set_fact:
+          retry_count: "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
+      - import_playbook: setup-vcenter-vms-all.yml
+      - import_playbook: boot-coreos-vms-all.yml
+    rescue:
+      - fail:
+          msg: Ended after 5 retries
+        when: retry_count|int == 5
+      - debug:
+          msg: "Failed to connect - Retrying..."
