@@ -1,42 +1,40 @@
 ---
-- hosts: "{{ hostname }}"
-  tasks:
-  - name: get user home directory
-    shell: >
-            getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
-    changed_when: false
-    register: user_home
+- name: get user home directory
+  shell: >
+          getent passwd {{ ansible_user_id }}  | awk -F: '{ print $6 }'
+  changed_when: false
+  register: user_home
 
-  - name: Setting facts
-    set_fact:
-      templateName : "{{ templateName }}"
-      folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
-      datastore: "{{ vmware_datastore }}"
+- name: Setting facts
+  set_fact:
+    templateName : "{{ templateName }}"
+    folder : "/{{ vmware_datacenter }}/vm/{{ config.clusterName }}"
+    datastore: "{{ vmware_datastore }}"
 
-  - name: Deploy Bootstrap Node with Custom MAC
-    include: setup-vcenter-vms-bootstrap-loop-use-mac.yml
-    when: use_custom_mac == True
+- name: Deploy Bootstrap Node with Custom MAC
+  include: setup-vcenter-vms-bootstrap-loop-use-mac.yml
+  when: use_custom_mac == True
 
-  - name: Deploy Master Nodes with Custom MAC
-    include: setup-vcenter-vms-master-loop-use-mac.yml
-    loop: "{{ masters }}"
-    when: use_custom_mac == True
+- name: Deploy Master Nodes with Custom MAC
+  include: setup-vcenter-vms-master-loop-use-mac.yml
+  loop: "{{ masters }}"
+  when: use_custom_mac == True
 
-  - name: Deploy Worker Nodes with Custom MAC
-    include: setup-vcenter-vms-worker-loop-use-mac.yml
-    loop: "{{ workers }}"
-    when: use_custom_mac == True
+- name: Deploy Worker Nodes with Custom MAC
+  include: setup-vcenter-vms-worker-loop-use-mac.yml
+  loop: "{{ workers }}"
+  when: use_custom_mac == True
 
-  - name: Deploy Bootstrap Node
-    include: setup-vcenter-vms-bootstrap-loop.yml
-    when: use_custom_mac == False
+- name: Deploy Bootstrap Node
+  include: setup-vcenter-vms-bootstrap-loop.yml
+  when: use_custom_mac == False
 
-  - name: Deploy Master Nodes
-    include: setup-vcenter-vms-master-loop.yml
-    loop: "{{ masters }}"
-    when: use_custom_mac == False
+- name: Deploy Master Nodes
+  include: setup-vcenter-vms-master-loop.yml
+  loop: "{{ masters }}"
+  when: use_custom_mac == False
 
-  - name: Deploy Worker Nodes
-    include: setup-vcenter-vms-worker-loop.yml
-    loop: "{{ workers }}"
-    when: use_custom_mac == False
+- name: Deploy Worker Nodes
+  include: setup-vcenter-vms-worker-loop.yml
+  loop: "{{ workers }}"
+  when: use_custom_mac == False
