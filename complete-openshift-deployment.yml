@@ -33,7 +33,7 @@
 
   - name: Waiting for bootstrap Complete
     shell: |
-      openshift-install --dir=/root/install-dir wait-for install-complete --log-level debug 2>&1 | tee /tmp/bootstrap-complete.log &
+      openshift-install --dir=/root/install-dir wait-for install-complete --log-level debug 2>&1 | tee /tmp/install-complete.log &
     register: install_status
     until: "'Install complete!' in install_status.stdout"
     retries: 120
