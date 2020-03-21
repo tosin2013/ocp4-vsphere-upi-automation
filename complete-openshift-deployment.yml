@@ -9,7 +9,7 @@
     shell: |
       openshift-install --dir=/root/install-dir wait-for bootstrap-complete --log-level debug 2>&1 | tee /tmp/bootstrap-complete.log &
     register: install_status
-    until: "'Bootstrap status: complete' in install_status"
+    until: "'Bootstrap status: complete' in install_status.stdout"
     retries: 80
     delay: 30
 
