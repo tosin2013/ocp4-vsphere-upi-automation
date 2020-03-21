@@ -98,7 +98,15 @@
             value: "{{ master64staticval }}"
       when:
         - configure_static_ips == True
-  rescue:
+
+    - name: "Power On {{ item.name }}"
+      command: "/usr/local/bin/govc vm.power -on {{ item.name }}"
+      environment:
+        GOVC_USERNAME: "{{ vcenter_username }}"
+        GOVC_PASSWORD: "{{ vcenter_password }}"
+        GOVC_URL: "https://{{ vcenter_hostname }}"
+        GOVC_INSECURE: 1
+rescue:
     - fail:
         msg: Ended after 5 retries
       when: retry_count|int == 5

@@ -99,7 +99,7 @@
       when:
         - configure_static_ips == True
 
-    - name: Power On bootstrap nodes
+    - name: Power On bootstrap node
       command: "/usr/local/bin/govc vm.power -on  bootstrap"
       environment:
         GOVC_USERNAME: "{{ vcenter_username }}"
