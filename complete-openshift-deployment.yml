@@ -8,9 +8,12 @@
   - name: Waiting for bootstrap Complete
     shell: |
       openshift-install --dir=/root/install-dir wait-for bootstrap-complete --log-level debug 2>&1 | tee /tmp/bootstrap-complete.log &
-    async: 3600
-    poll: 5
-    changed_when: false
+    register: install_status
+
+  - name: "Install Status"
+    debug:
+      msg: "{{ install_status }}"
+
   - name: Wait for bootstrap complete to be found in file
     wait_for:
       path: "/tmp/bootstrap-complete.log"
@@ -29,10 +32,5 @@
   - name: Get Ready nodes
     command: oc get nodes
 
-  - name:  Review  and approve the pending certificate signing requests
-    command: "curl -k --silent {{ api_endpoint }}:22623/config/master"
-    register: result
-    until: result.stdout.find("Pending") != -1
-    retries: 100
-    delay: 30
-    changed_when: false
+  #- name:  Review  and approve the pending certificate signing requests
+  #  script: approve-ocp-certs.sh
