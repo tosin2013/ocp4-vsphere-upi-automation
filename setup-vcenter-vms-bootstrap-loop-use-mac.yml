@@ -1,96 +1,116 @@
+- name: set environment
+  environment:
+    PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
+    GOVC_USERNAME: "{{ vcenter_username }}"
+    GOVC_PASSWORD: "{{ vcenter_password }}"
+    GOVC_URL: "https://{{ vcenter_hostname }}"
+    GOVC_INSECURE: 1
 - name: get append-bootstrap.64 dhcp ignition file
   shell: >
       cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
   changed_when: false
   register: bootstrap64
   when: configure_static_ips == False
+- name: Attempt and gracefull roll back demo
+  block:
+    - name: Set the retry count
+      set_fact:
+        retry_count: "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
+    - name: Setting bootstrap64 fact
+      set_fact:
+        bootstrap64val: "{{ bootstrap64.stdout }}"
+      when:
+        - configure_static_ips == False
 
-- name: Setting bootstrap64 fact
-  set_fact:
-    bootstrap64val: "{{ bootstrap64.stdout }}"
-  when:
-    - configure_static_ips == False
+    - name: get append-bootstrap.64 static ignition file
+      shell: >
+          cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
+      changed_when: false
+      register: bootstrap64static
+      when:
+        - configure_static_ips == True
 
-- name: get append-bootstrap.64 static ignition file
-  shell: >
-      cat   {{ user_home.stdout }}/ocp4-utils/configFiles/bootstrap.{{ config.clusterName }}.{{ config.baseDomain }}.64
-  changed_when: false
-  register: bootstrap64static
-  when:
-    - configure_static_ips == True
+    - name: Setting bootstrap64static fact
+      set_fact:
+        bootstrap64staticval: "{{ bootstrap64static.stdout }}"
+      when:
+        - configure_static_ips == True
 
-- name: Setting bootstrap64static fact
-  set_fact:
-    bootstrap64staticval: "{{ bootstrap64static.stdout }}"
-  when:
-    - configure_static_ips == True
+    - name: "Bootstrap base64 DHCP base64"
+      debug:
+        msg: "{{ bootstrap64val }}"
+      when:
+        - configure_static_ips == False
 
-- name: "Bootstrap base64 DHCP base64"
-  debug:
-    msg: "{{ bootstrap64val }}"
-  when:
-    - configure_static_ips == False
+    - name: "Bootstrap base64 static base64"
+      debug:
+        msg: "{{ bootstrap64staticval }}"
+      when:
+        - configure_static_ips == True
 
-- name: "Bootstrap base64 static base64"
-  debug:
-    msg: "{{ bootstrap64staticval }}"
-  when:
-    - configure_static_ips == True
+    - name: Create bootstrap VM from the template via DHCP
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
+        validate_certs: no
+        folder: "{{ folder }}"
+        name: bootstrap
+        state: poweredoff
+        template: "{{ templateName }}"
+        disk:
+        - size_gb: 120
+          type: thin
+          datastore: "{{ datastore }}"
+        hardware:
+          memory_mb: 16384
+          num_cpus: 4
+          memory_reservation_lock: True
+        networks:
+        - name: "{{ vmware_network }}"
+          mac: "{{ bootstrap.macaddr | random_mac }}"
+        wait_for_ip_address: no
+        customvalues:
+          - key: guestinfo.ignition.config.data
+            value: "{{ bootstrap64val }}"
+      when:
+        - configure_static_ips == False
 
-- name: Create bootstrap VM from the template via DHCP
-  vmware_guest:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    datacenter: "{{ vmware_datacenter }}"
-    validate_certs: no
-    folder: "{{ folder }}"
-    name: bootstrap
-    state: poweredoff
-    template: "{{ templateName }}"
-    disk:
-    - size_gb: 120
-      type: thin
-      datastore: "{{ datastore }}"
-    hardware:
-      memory_mb: 16384
-      num_cpus: 4
-      memory_reservation_lock: True
-    networks:
-    - name: "{{ vmware_network }}"
-      mac: "{{ bootstrap.macaddr | random_mac }}"
-    wait_for_ip_address: no
-    customvalues:
-      - key: guestinfo.ignition.config.data
-        value: "{{ bootstrap64val }}"
-  when:
-    - configure_static_ips == False
+    - name: Create bootstrap VM from the template via Static IP
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
+        validate_certs: no
+        folder: "{{ folder }}"
+        name: bootstrap
+        state: poweredoff
+        template: "{{ templateName }}"
+        disk:
+        - size_gb: 120
+          type: thin
+          datastore: "{{ datastore }}"
+        hardware:
+          memory_mb: 16384
+          num_cpus: 4
+          memory_reservation_lock: True
+        networks:
+        - name: "{{ vmware_network }}"
+          mac: "{{ bootstrap.macaddr  | random_mac }}"
+        wait_for_ip_address: no
+        customvalues:
+          - key: guestinfo.ignition.config.data
+            value: "{{ bootstrap64staticval }}"
+      when:
+        - configure_static_ips == True
+    - name: Power On bootstrap nodes
+      command: "/usr/local/bin/govc vm.power -on  bootstrap"
+  rescue:
+    - fail:
+        msg: Ended after 5 retries
+      when: retry_count|int == 5
 
-- name: Create bootstrap VM from the template via Static IP
-  vmware_guest:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    datacenter: "{{ vmware_datacenter }}"
-    validate_certs: no
-    folder: "{{ folder }}"
-    name: bootstrap
-    state: poweredoff
-    template: "{{ templateName }}"
-    disk:
-    - size_gb: 120
-      type: thin
-      datastore: "{{ datastore }}"
-    hardware:
-      memory_mb: 16384
-      num_cpus: 4
-      memory_reservation_lock: True
-    networks:
-    - name: "{{ vmware_network }}"
-      mac: "{{ bootstrap.macaddr  | random_mac }}"
-    wait_for_ip_address: no
-    customvalues:
-      - key: guestinfo.ignition.config.data
-        value: "{{ bootstrap64staticval }}"
-  when:
-    - configure_static_ips == True
+    - debug:
+        msg: "Failed to connect - Retrying..."
