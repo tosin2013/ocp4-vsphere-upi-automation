@@ -9,18 +9,14 @@
     shell: |
       openshift-install --dir=/root/install-dir wait-for bootstrap-complete --log-level debug 2>&1 | tee /tmp/bootstrap-complete.log &
     register: install_status
+    until: "'Bootstrap status: complete' in install_status"
+    retries: 80
+    delay: 30
 
   - name: "Install Status"
     debug:
       msg: "{{ install_status }}"
 
-  - name: Wait for bootstrap complete to be found in file
-    wait_for:
-      path: "/tmp/bootstrap-complete.log"
-      search_regex: "Bootstrap status: complete"
-      delay: 30
-      timeout: 900
-      msg: "DEBUG Bootstrap status: complete "
   - name: Remove /tmp/bootstrap-complete.log
     file:
       path: /tmp/bootstrap-complete.log
