@@ -106,7 +106,7 @@
         GOVC_PASSWORD: "{{ vcenter_password }}"
         GOVC_URL: "https://{{ vcenter_hostname }}"
         GOVC_INSECURE: 1
-rescue:
+  rescue:
     - fail:
         msg: Ended after 5 retries
       when: retry_count|int == 5
