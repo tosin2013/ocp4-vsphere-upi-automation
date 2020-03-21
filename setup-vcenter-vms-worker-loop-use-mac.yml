@@ -1,95 +1,125 @@
-- name: get worker dhcp ignition file
-  shell: >
-      cat {{ user_home.stdout }}/install-dir/worker.64
-  changed_when: false
-  register: worker64
-  when: not configure_static_ips
+- name: "Attempt to create and poweron {{ item.name }}"
+  block:
+    - name: get worker dhcp ignition file
+      shell: >
+          cat {{ user_home.stdout }}/install-dir/worker.64
+      changed_when: false
+      register: worker64
+      when: not configure_static_ips
 
-- name: Setting worker64 fact
-  set_fact:
-    worker64val: "{{ worker64.stdout }}"
-  when:
-    - configure_static_ips == False
+    - name: Setting worker64 fact
+      set_fact:
+        worker64val: "{{ worker64.stdout }}"
+      when:
+        - configure_static_ips == False
 
-- name: get worker.64 static ignition file
-  shell: >
-        cat {{ user_home.stdout }}/ocp4-utils/configFiles/{{ item.name }}.{{ config.clusterName }}.{{ config.baseDomain }}.64
-  changed_when: false
-  register: worker64static
-  when: configure_static_ips
+    - name: get worker.64 static ignition file
+      shell: >
+            cat {{ user_home.stdout }}/ocp4-utils/configFiles/{{ item.name }}.{{ config.clusterName }}.{{ config.baseDomain }}.64
+      changed_when: false
+      register: worker64static
+      when: configure_static_ips
 
-- name: Setting worker64static fact
-  set_fact:
-    worker64staticval: "{{ worker64static.stdout }}"
-  when:
-    - configure_static_ips == True
+    - name: Setting worker64static fact
+      set_fact:
+        worker64staticval: "{{ worker64static.stdout }}"
+      when:
+        - configure_static_ips == True
 
-- name: "worker base64 DHCP base64"
-  debug:
-    msg: "{{ worker64val }}"
-  when:
-    - configure_static_ips == False
+    - name: "worker base64 DHCP base64"
+      debug:
+        msg: "{{ worker64val }}"
+      when:
+        - configure_static_ips == False
 
-- name: "worker base64 static base64"
-  debug:
-    msg: "{{ worker64staticval }}"
-  when:
-    - configure_static_ips == True
+    - name: "worker base64 static base64"
+      debug:
+        msg: "{{ worker64staticval }}"
+      when:
+        - configure_static_ips == True
 
-- name: Create worker VM from the template via DHCP
-  vmware_guest:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    datacenter: "{{ vmware_datacenter }}"
-    validate_certs: no
-    folder: "{{ folder }}"
-    name: "{{ item.name }}"
-    state: poweredoff
-    template: "{{ templateName }}"
-    disk:
-    - size_gb: 120
-      type: thin
-      datastore: "{{ datastore }}"
-    hardware:
-      memory_mb: 16384
-      num_cpus: 4
-      memory_reservation_lock: True
-    networks:
-    - name: "{{ vmware_network }}"
-      mac: "{{ item.macaddr | random_mac }}"
-    wait_for_ip_address: no
-    customvalues:
-      - key: guestinfo.ignition.config.data
-        value: "{{ worker64val }}"
-  when:
-    - configure_static_ips == False
+    - name: Create worker VM from the template via DHCP
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
+        validate_certs: no
+        folder: "{{ folder }}"
+        name: "{{ item.name }}"
+        state: poweredoff
+        template: "{{ templateName }}"
+        disk:
+        - size_gb: 120
+          type: thin
+          datastore: "{{ datastore }}"
+        hardware:
+          memory_mb: 16384
+          num_cpus: 4
+          memory_reservation_lock: True
+        networks:
+        - name: "{{ vmware_network }}"
+          mac: "{{ item.macaddr | random_mac }}"
+        wait_for_ip_address: no
+        customvalues:
+          - key: guestinfo.ignition.config.data
+            value: "{{ worker64val }}"
+      when:
+        - configure_static_ips == False
 
-- name: Create worker VM from the template via Static IP
-  vmware_guest:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    datacenter: "{{ vmware_datacenter }}"
-    validate_certs: no
-    folder: "{{ folder }}"
-    name: "{{ item.name }}"
-    state: poweredoff
-    template: "{{ templateName }}"
-    disk:
-    - size_gb: 120
-      type: thin
-      datastore: "{{ datastore }}"
-    hardware:
-      memory_mb: 16384
-      num_cpus: 4
-      memory_reservation_lock: True
-    networks:
-    - name: "{{ vmware_network }}"
-      mac: "{{ item.macaddr  | random_mac }}"
-    wait_for_ip_address: no
-    customvalues:
-      - key: guestinfo.ignition.config.data
-        value: "{{ worker64staticval }}"
-  when:
-    - configure_static_ips == True
+    - name: Create worker VM from the template via Static IP
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
+        validate_certs: no
+        folder: "{{ folder }}"
+        name: "{{ item.name }}"
+        state: poweredoff
+        template: "{{ templateName }}"
+        disk:
+        - size_gb: 120
+          type: thin
+          datastore: "{{ datastore }}"
+        hardware:
+          memory_mb: 16384
+          num_cpus: 4
+          memory_reservation_lock: True
+        networks:
+        - name: "{{ vmware_network }}"
+          mac: "{{ item.macaddr  | random_mac }}"
+        wait_for_ip_address: no
+        customvalues:
+          - key: guestinfo.ignition.config.data
+            value: "{{ worker64staticval }}"
+      when:
+        - configure_static_ips == True
+  rescue:
+    - fail:
+        msg: Ended after 5 retries
+      when: retry_count|int == 5
+
+    - debug:
+        msg: "Failed to poweron  - Retrying..."
+
+  - name: Poweroff bootstrap virtual machine
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      datacenter: "{{ vmware_datacenter }}"
+      validate_certs: no
+      cluster: "{{ vcenter_cluster }}"
+      name: "{{ item.name }}"
+      state: poweredoff
+
+  - name: Removing bootstrap virtual machine
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      cluster: "{{ vcenter_cluster }}"
+      name: "{{ item.name }}"
+      state: absent
