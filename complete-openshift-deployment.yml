@@ -41,4 +41,4 @@
 
   - name: "Install Complete"
     debug:
-      msg: "{{ install_status.stdout }}"
+      msg: "Install is compelte {{ install_status.stdout }}"
