@@ -38,3 +38,7 @@
     until: "'Install complete!' in install_status.stdout"
     retries: 120
     delay: 30
+
+  - name: "Install Complete"
+    debug:
+      msg: "{{ install_status.stdout }}"
