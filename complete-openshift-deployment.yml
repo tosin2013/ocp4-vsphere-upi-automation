@@ -28,5 +28,5 @@
   - name: Get Ready nodes
     command: oc get nodes
 
-  #- name:  Review  and approve the pending certificate signing requests
-  #  script: approve-ocp-certs.sh
+  - name:  Review  and approve the pending certificate signing requests
+    script: approve-ocp-certs.sh
