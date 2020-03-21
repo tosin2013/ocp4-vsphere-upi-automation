@@ -134,3 +134,6 @@
         cluster: "{{ vcenter_cluster }}"
         name: "{{ item.name }}"
         state: absent
+
+    - name: Deploy Master Nodes with Custom MAC
+      include: setup-vcenter-vms-master-loop-use-mac.yml
