@@ -1,14 +1,14 @@
 - name: Attempt to create and poweron bootstrap node
   block:
+    - name: Set the retry count
+      set_fact:
+        retry_count: "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
     - name: get append-bootstrap.64 dhcp ignition file
       shell: >
           cat  {{ user_home.stdout }}/install-dir/append-bootstrap.64
       changed_when: false
       register: bootstrap64
       when: configure_static_ips == False
-    - name: Set the retry count
-      set_fact:
-        retry_count: "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
     - name: Setting bootstrap64 fact
       set_fact:
         bootstrap64val: "{{ bootstrap64.stdout }}"
@@ -114,23 +114,23 @@
     - debug:
         msg: "Failed to poweron  - Retrying..."
 
-  - name: Poweroff bootstrap virtual machine
-    vmware_guest:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vcenter_username }}"
-      password: "{{ vcenter_password }}"
-      datacenter: "{{ vmware_datacenter }}"
-      validate_certs: no
-      cluster: "{{ vcenter_cluster }}"
-      name: bootstrap
-      state: poweredoff
+    - name: Poweroff bootstrap virtual machine
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vmware_datacenter }}"
+        validate_certs: no
+        cluster: "{{ vcenter_cluster }}"
+        name: bootstrap
+        state: poweredoff
 
-  - name: Removing bootstrap virtual machine
-    vmware_guest:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vcenter_username }}"
-      password: "{{ vcenter_password }}"
-      validate_certs: no
-      cluster: "{{ vcenter_cluster }}"
-      name: bootstrap
-      state: absent
+    - name: Removing bootstrap virtual machine
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        cluster: "{{ vcenter_cluster }}"
+        name: bootstrap
+        state: absent
