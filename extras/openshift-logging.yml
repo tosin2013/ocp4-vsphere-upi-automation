@@ -12,11 +12,11 @@ spec:
       redundancyPolicy: SingleRedundancy
       resources:
         limits:
-          cpu: 
-          memory: 8Gi
+          cpu: 1
+          memory: 4Gi
       storage:
         storageClassName: thin
-        size: 200G
+        size: 100G
   visualization:
     type: kibana
     kibana:
@@ -29,4 +29,3 @@ spec:
     logs:
       type: fluentd
       fluentd: {}
-
