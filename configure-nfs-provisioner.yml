@@ -1,6 +1,3 @@
 - hosts: all
   roles:
     - nfs-provisioner-role
-
-
-# oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"pvc":{"claim": "image-registry-pvc"}}}}'
