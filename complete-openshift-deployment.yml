@@ -31,7 +31,7 @@
   - name:  Review  and approve the pending certificate signing requests
     script: approve-ocp-certs.sh
 
-  - name: Waiting for bootstrap Complete
+  - name: Waiting for installation to complete
     shell: |
       openshift-install --dir=/root/install-dir wait-for install-complete --log-level debug 2>&1 | tee /tmp/install-complete.log &
     register: install_status
