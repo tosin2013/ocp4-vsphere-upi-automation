@@ -21,7 +21,7 @@
     shell: pip3 install --upgrade requests
 
   - name: "Install magic using pip3"
-    shell: pip3 install --upgrade magic
+    shell: pip3 install --upgrade python-magic
 
   - name: get user home directory
     shell: >
