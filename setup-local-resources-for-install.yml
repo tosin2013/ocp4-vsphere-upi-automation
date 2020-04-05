@@ -1,6 +1,6 @@
 - hosts: "{{ hostname }}"
 
-  environment: 
+  environment:
     PATH: "{{ playbook_dir }}/bin:{{ ansible_env.PATH }}"
 
   tasks:
@@ -19,6 +19,9 @@
 
   - name: "Install requests using pip3"
     shell: pip3 install --upgrade requests
+
+  - name: "Install magic using pip3"
+    shell: pip3 install --upgrade magic
 
   - name: get user home directory
     shell: >
@@ -42,10 +45,10 @@
      sshKey: "{{ sshkeyData.stdout }}"
 
   - name: Clean up existing bin, install-dir and downloads folders
-    file: 
+    file:
       path: "{{ user_home.stdout }}/{{ item }}"
       state: absent
-    with_items: ["downloads", "install-dir", "patches", "ocp4-utils"] 
+    with_items: ["downloads", "install-dir", "patches", "ocp4-utils"]
     when: clean is defined
 
   - name: Create install-dir, downloads and patches directories
@@ -53,13 +56,13 @@
       path: "{{ user_home.stdout }}/{{ item }}"
       state: directory
       mode: '0755'
-    with_items: ["downloads", "install-dir", "patches"]  
+    with_items: ["downloads", "install-dir", "patches"]
 
   - name: Download govc
     get_url:
       url: "{{ download.govc}}"
       dest: "{{ user_home.stdout }}/downloads/govc.gz"
-      validate_certs: no    
+      validate_certs: no
 
   - name: Unarchive govc
     shell: gzip -dc "{{ user_home.stdout }}/downloads/govc.gz" > "/usr/local/bin/govc"
@@ -74,13 +77,13 @@
       src: "templates/install-config.yaml.j2"
       dest: "{{ user_home.stdout }}/install-dir/install-config.yaml"
 
-  - name: Backup the install-config.yaml file 
+  - name: Backup the install-config.yaml file
     command: cp {{ user_home.stdout }}/install-dir/install-config.yaml {{ user_home.stdout }}/install-dir/install-config.yaml.orig
 
   - name: Generate the ignition manifests
     command: "/usr/local/bin/openshift-install create manifests --dir={{ user_home.stdout }}/install-dir"
 
-  - name: Copy cluster scheduler path to machine 
+  - name: Copy cluster scheduler path to machine
     copy:
       src: patches/cluster-scheduler-02-config.yml.patch
       dest: "{{ user_home.stdout }}/patches/cluster-scheduler-02-config.yml.patch"
@@ -93,7 +96,7 @@
     command: "/usr/local/bin/openshift-install create ignition-configs --dir={{ user_home.stdout }}/install-dir"
 
   - name: Copy append-bootstrap.ign file into install-dir
-    template: 
+    template:
       src: "templates/append-bootstrap.ign.j2"
       dest: "{{ user_home.stdout }}/install-dir/append-bootstrap.ign"
 
@@ -106,13 +109,13 @@
   - name: Get base64 version of worker.ign
     shell: "base64 -w0 {{ user_home.stdout }}/install-dir/worker.ign > {{ user_home.stdout }}/install-dir/worker.64"
 
-  - name: Copy vra.json for thin provisioing 
-    copy: 
+  - name: Copy vra.json for thin provisioing
+    copy:
       src: "vra.json"
       dest: "{{ user_home.stdout }}/vra.json"
 
   - name: Copy configure-webserver.sh for webserver configuration
-    copy: 
+    copy:
       src: "configure-webserver.sh"
       dest: "{{ user_home.stdout }}/configure-webserver.sh"
       owner: root
@@ -137,7 +140,7 @@
       pip3 install -r requirements.txt
       pip3 install pathlib
     when: configure_static_ips
-  
+
   - name: Configure static ips
     shell: cd {{ user_home.stdout }}/ocp4-utils/ && python3 {{ user_home.stdout }}/ocp4-utils/prepare.py
     when: configure_static_ips

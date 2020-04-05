@@ -20,6 +20,9 @@
   - name: "Install requests using pip3"
     shell: pip3 install --upgrade requests
 
+  - name: "Install magic using pip3"
+    shell: pip3 install --upgrade magic
+
   - name: Clean up working directory
     file:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
