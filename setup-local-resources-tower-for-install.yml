@@ -20,9 +20,6 @@
   - name: "Install requests using pip3"
     shell: pip3 install --upgrade requests
 
-  - name: "Install magic using pip3"
-    shell: pip3 install --upgrade python-magic
-
   - name: Clean up working directory
     file:
       path: "{{ working_dir }}/{{ config.clusterName }}.{{ config.baseDomain }}"
@@ -186,6 +183,7 @@
       pip3 install pathlib
       pip3 install jinja2
       pip3 install pycdlib
+      pip3 install python-magic
     when: configure_static_ips
 
   - name: Configure static ips

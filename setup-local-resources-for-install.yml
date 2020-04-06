@@ -139,6 +139,7 @@
       cd {{ user_home.stdout }}/ocp4-utils/
       pip3 install -r requirements.txt
       pip3 install pathlib
+      pip3 install python-magic
     when: configure_static_ips
 
   - name: Configure static ips
