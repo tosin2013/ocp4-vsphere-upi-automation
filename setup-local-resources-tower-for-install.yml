@@ -82,6 +82,7 @@
     git:
       repo: https://github.com/ashcrow/filetranspiler
       dest: /usr/local/src/filetranspiler
+      version: 1.1.0
 
   - name: Building filetranspiler
     shell: "podman build /usr/local/src/filetranspiler -t filetranspiler:latest"
