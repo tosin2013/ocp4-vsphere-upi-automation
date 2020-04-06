@@ -199,7 +199,6 @@
       pip3 install pathlib
       pip3 install jinja2
       pip3 install pycdlib
-      pip3 install --upgrade yaml
     when: configure_static_ips
 
   - name: Configure static ips
