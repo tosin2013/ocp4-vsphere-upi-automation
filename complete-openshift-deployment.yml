@@ -24,12 +24,18 @@
 
   - name: Verifying oc commands
     command: oc whoami
+    environment:
+      KUBECONFIG: "/root/install-dir/auth/kubeconfig"
 
   - name: Get Ready nodes
     command: oc get nodes
+    environment:
+      KUBECONFIG: "/root/install-dir/auth/kubeconfig"
 
   - name:  Review  and approve the pending certificate signing requests
     script: approve-ocp-certs.sh
+    environment:
+      KUBECONFIG: "/root/install-dir/auth/kubeconfig"
 
   - name: Waiting for installation to complete
     shell: |
